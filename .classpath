@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="libraries"/>
+	<classpathentry kind="src" path="mason"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/bsh-2.0b4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/itext-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/jcommon-1.0.21.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/jfreechart-1.0.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/jmf.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/portfolio.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/jgap.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Java3DLib"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

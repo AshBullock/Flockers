@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Tue Apr 10 12:29:02 BST 2012
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=invasion.jar
+manifest.mergeall=true
+manifest.mainclass=boidcoevolution.Invasion_SwarmVsMeta
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=<jar|itext-1.2.jar>;<jar|jcommon-1.0.0.jar>;<jar|jfreechart-1.0.1.jar>;<jar|jmf.jar>
+includes=
