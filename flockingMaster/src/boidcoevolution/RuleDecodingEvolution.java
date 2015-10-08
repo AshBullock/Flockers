@@ -22,7 +22,8 @@ public class RuleDecodingEvolution extends BulkFitnessFunction {
 	public Hashtable<String,Integer> global_parameters;
 	public Flockers theFlock; 
 
-	ArrayList<ArrayList<Double>> Rule_array = new ArrayList<ArrayList<Double>>();
+	//which rule array is being used 
+	ArrayList<ArrayList<Integer>> Rule_array = new ArrayList<ArrayList<Integer>>();
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
 
@@ -31,6 +32,7 @@ public class RuleDecodingEvolution extends BulkFitnessFunction {
 	}
 
 	public RuleDecodingEvolution(Hashtable<String,Integer> parameters) {
+		//set chromosone parameters and a new flock 
 		theFlock = new Flockers(System.currentTimeMillis(), parameters);
 		global_parameters = parameters;
 
@@ -39,11 +41,11 @@ public class RuleDecodingEvolution extends BulkFitnessFunction {
 
 
 
-
+	//read the rules that each chromosone has  
 	private void readRule(Population pop) 
 	{
 
-		ArrayList<Double> Rule_j = new ArrayList<Double>();
+		ArrayList<Integer> Rule_j = new ArrayList<Integer>();
 
 		for (int i=0;i<pop.size();i++) {
 			IChromosome a_subject = pop.getChromosome(i);
@@ -53,14 +55,15 @@ public class RuleDecodingEvolution extends BulkFitnessFunction {
 			Integer num_neighborhood = 3;
 
 			Integer repulsion_dis = 5;
-
+			
+			
 			num_neighborhood_array.add(num_neighborhood);
 			repulsion_array.add(repulsion_dis);
 
 			for (int j=0; j<num_neighborhood; j++) {
 
 				Double temp_output = (Double) a_subject.getGene(j).getAllele();
-				Double rule_output = temp_output.doubleValue();
+				Integer rule_output = temp_output.intValue();
 				Rule_j.add(rule_output);
 			}
 
@@ -72,14 +75,12 @@ public class RuleDecodingEvolution extends BulkFitnessFunction {
 	public void evaluate(Population pop) {
 
 
-
-
-
 		readRule(pop);
 
 		//MersenneTwisterFast randomnum = new MersenneTwisterFast();
 		//theFlock.run(randomnum.nextInt());
 		System.out.println("theFlock.getWidth() in Marker deconding is: " + theFlock.getWidth());
+		//run the flock with the given rules and retrieve statistical results 
 		statistical_results = theFlock.run(Rule_array, num_neighborhood_array, repulsion_array, global_parameters);
 
 		System.out.println(pop.size());

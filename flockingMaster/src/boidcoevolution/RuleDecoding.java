@@ -22,7 +22,7 @@ public class RuleDecoding extends BulkFitnessFunction {
 	public Hashtable<String,Integer> global_parameters;
 	public Flockers theFlock; 
 
-	ArrayList<ArrayList<Double>> Rule_array = new ArrayList<ArrayList<Double>>();
+	ArrayList<ArrayList<Integer>> Rule_array = new ArrayList<ArrayList<Integer>>();
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
 
@@ -43,7 +43,7 @@ public class RuleDecoding extends BulkFitnessFunction {
 	private void readRule(Population pop) 
 	{
 
-		ArrayList<Double> Rule_j = new ArrayList<Double>();
+		ArrayList<Integer> Rule_j = new ArrayList<Integer>();
 
 		for (int i=0;i<pop.size();i++) {
 			IChromosome a_subject = pop.getChromosome(i);
@@ -61,7 +61,7 @@ public class RuleDecoding extends BulkFitnessFunction {
 
 			for (int j=0; j<num_neighborhood; j++) {
 
-				Double rule_output = (Double) a_subject.getGene(j+2).getAllele();
+				Integer rule_output = (Integer) a_subject.getGene(j+2).getAllele();
 				Rule_j.add(rule_output);
 			}
 
