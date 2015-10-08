@@ -46,7 +46,7 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 	public Display2D display;
 	public JFrame displayFrame;
 
-	ArrayList<ArrayList<Double>> Rule_array = new ArrayList<ArrayList<Double>>(); 
+	ArrayList<ArrayList<Integer>> Rule_array = new ArrayList<ArrayList<Integer>>(); 
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
 	
@@ -57,8 +57,8 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 	public static void main(String[] args)
 	{
 		
-		parameters.put("PopSize", 200);
-		parameters.put("ArenaSize", 400);
+		parameters.put("PopSize", 100);
+		parameters.put("ArenaSize", 600);
 		FlockersWithUI_FinalGenObser flocking = new FlockersWithUI_FinalGenObser();  // randomizes by currentTimeMillis        
 		Console c = new Console(flocking);
 		c.setVisible(true);
@@ -91,14 +91,14 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 
 
 		PopulationFileIO PopLoder = new PopulationFileIO(); 
-		Population pop = PopLoder.LoadPopulation("\\1_PopSize100_ArenaSize600_Evolution\\PopulationRecords40", 200);
-		
+		Population pop = PopLoder.LoadPopulation("\\DynamicRule", parameters.get("PopSize"));
+
 		PopLoder.readRule(pop);
 
 		flock.Rule_array = PopLoder.Rule_array;
 		flock.num_neighborhood_array = PopLoder.num_neighborhood_array;
 		flock.repulsion_distance_array = PopLoder.repulsion_array;
-		flock.Predator_maximum_catch = 20;
+		flock.Predator_maximum_catch = 5;
 		
 		super.start();
 		setupPortrayals();
@@ -125,15 +125,28 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 		// make the flockers random colors and four times their normal size (prettier)
 		for(int x=0;x<flock.flockers.allObjects.numObjs;x++) {
 			Flocker f = (Flocker)(flock.flockers.allObjects.objs[x]);
-			int flocksize = flock.Prey_BodyLength;
-			if(f.ispredator==true) flocksize = flock.Predator_BodyLength;
-
+		
+			
+			double fishSize =  f.getBodyLength()*2;
+			
+			
+			if(f.isPredator(f)) fishSize = flock.Predator_BodyLength*2;
+			
+			if(f.isPredator(f))
+			{
+				flockersPortrayal.setPortrayalForObject(flock.flockers.allObjects.objs[x],
+						new OrientedPortrayal2D(new SimplePortrayal2D(),0,fishSize,Color.RED,
+						OrientedPortrayal2D.SHAPE_COMPASS));
+			}
+			else
+			{
 			flockersPortrayal.setPortrayalForObject(flock.flockers.allObjects.objs[x],
-					new OrientedPortrayal2D(new SimplePortrayal2D(),0,flocksize,
+					new OrientedPortrayal2D(new SimplePortrayal2D(),0,fishSize,
 							new Color(128 + state.random.nextInt(128),
 									128 + state.random.nextInt(128),
 									128 + state.random.nextInt(128)),
 									OrientedPortrayal2D.SHAPE_COMPASS));
+			}
 		}
 
 		// update the size of the display appropriately.
