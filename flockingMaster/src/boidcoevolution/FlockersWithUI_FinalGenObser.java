@@ -45,7 +45,7 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 {
 	public Display2D display;
 	public JFrame displayFrame;
-
+	
 	ArrayList<ArrayList<Integer>> Rule_array = new ArrayList<ArrayList<Integer>>(); 
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
@@ -98,7 +98,7 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 		flock.Rule_array = PopLoder.Rule_array;
 		flock.num_neighborhood_array = PopLoder.num_neighborhood_array;
 		flock.repulsion_distance_array = PopLoder.repulsion_array;
-		flock.Predator_maximum_catch = 5;
+		flock.Predator_maximum_catch = 1;
 		
 		super.start();
 		setupPortrayals();

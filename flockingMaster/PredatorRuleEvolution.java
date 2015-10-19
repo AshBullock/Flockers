@@ -1,3 +1,4 @@
+
 package boidcoevolution;
 
 import java.io.BufferedReader;
@@ -31,7 +32,10 @@ import org.jgap.impl.TournamentSelector;
 import sim.display.Display2D;
 
 
-public class RuleEvolutionMain_FromInvasion {
+public class PredatorRuleEvolution {
+
+
+
 	public Display2D display;
 	public JFrame displayFrame;
 
@@ -40,7 +44,9 @@ public class RuleEvolutionMain_FromInvasion {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		// used for evolved population 
+	
+		// used for evolved population
+		//create populations of chromosones 
 		Population evolved_pop_1 = null;
 		Population evolved_pop_2 = null;
 		IChromosome mutant = null;
@@ -49,37 +55,42 @@ public class RuleEvolutionMain_FromInvasion {
 
 
 
-
+		//Allows user to specify the number of runs 
 		String run_num = args[0];
 		int index = run_num.indexOf('=');
 		run_num = run_num.substring(index+1, run_num.length());		
 
 
-
+		//Population size - the number of chromosones in pop
 		String ReadPopSize = args[1];
 		index = ReadPopSize.indexOf('=');
 		ReadPopSize = ReadPopSize.substring(index+1, ReadPopSize.length());		
 		Integer PopSize = Integer.parseInt(ReadPopSize);
 		System.out.println("************************* PopSize is " + PopSize);				
-
+		
+		
+		//Arena Size - 
 		String ReadArenaSize = args[2];
 		index = ReadArenaSize.indexOf('=');
 		ReadArenaSize = ReadArenaSize.substring(index+1, ReadArenaSize.length());		
 		Integer ArenaSize = Integer.parseInt(ReadArenaSize);
 		System.out.println("************************* Arena size is " + ArenaSize);	
-
+		
+		
 		String dest_dir2 = run_num + "_PopSize";
 		dest_dir2 += PopSize;
 		dest_dir2 += "_ArenaSize";
 		dest_dir2 += ReadArenaSize;
 		
+		//create a hash table of parameters 
 		Hashtable<String,Integer> parameters = new Hashtable<String,Integer>();
 		parameters.put("PopSize", PopSize);
 		parameters.put("ArenaSize", ArenaSize);
 
+		//create a new file with name dependant on arena and pop size  
 		try {			
 			File dir1 = new File (".");
-			boolean success = (new File(dir1.getCanonicalPath() + "//" + dest_dir2 + "_Evolution")).mkdir();
+			boolean success = (new File(dir1.getCanonicalPath() + "//" + dest_dir2 + "_Predator_Evolution")).mkdir();
 			if (success) {
 				System.out.println("Directory: " + dir1.getCanonicalPath() + "/" + dest_dir2 + " created");
 			}    
@@ -91,7 +102,7 @@ public class RuleEvolutionMain_FromInvasion {
 		try{
 			// Create file 
 			File dir1 = new File (".");
-			FileWriter fstream = new FileWriter(dir1.getCanonicalPath() + "//" + dest_dir2 + "_Evolution//parameters.txt");
+			FileWriter fstream = new FileWriter(dir1.getCanonicalPath() + "//" + dest_dir2 + "_Predator_Evolution//parameters.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(PopSize.toString());
 			out.write('\n');
@@ -107,11 +118,13 @@ public class RuleEvolutionMain_FromInvasion {
 
 
 
-
+		
 		int numEvolutions = 30000;
 		Configuration.reset();
+		//add a new default configuration 
 		Configuration gaConf = new DefaultConfiguration();
 		Genotype genotype = null;
+		//3 genes in a chromosone  
 		int chromeSize = 3;
 
 
@@ -128,21 +141,30 @@ public class RuleEvolutionMain_FromInvasion {
 
 			//gaConf.getGeneticOperators().clear();
 			//gaConf.addGeneticOperator(new MutationOperatorNew(gaConf, 500));
-
-			gaConf.setBulkFitnessFunction(new RuleDecodingEvolution(parameters));
-
-			for (int i=0; i < chromeSize; i++)
-			{	//creates a gene that holds a Double value, with lower bound 0 and upper bound 4 
-				sampleGenes[i] = new DoubleGene(gaConf, 0, 4);  
 				
+			//set the fitness function
+			gaConf.setBulkFitnessFunction(new RuleDecodingPredatorEvolution(parameters));
+
+			//creating a sample genes for a sample chromosone, each gene is a double 
+			for (int i=0; i < chromeSize; i++)
+			{
+				
+				sampleGenes[i] = new DoubleGene(gaConf, 0, 6);  
+				
+				
+			
 			}
 
-
+			//create and set the sample chromosone 
 			Chromosome sampleChromosome = new Chromosome(gaConf, sampleGenes );
-
+			
 			gaConf.setSampleChromosome( sampleChromosome );
-
-			gaConf.setPopulationSize(PopSize);           
+			
+			//set the population size 
+			gaConf.setPopulationSize(PopSize);
+			
+			//create a random genotype (a collection of randomised chromosones that follow the
+			//format given by the sample chromosone but with randomised values
 			genotype = Genotype.randomInitialGenotype(gaConf);
 
 
@@ -172,7 +194,7 @@ public class RuleEvolutionMain_FromInvasion {
 		//		}		
 
 		MyGABreeder2 breeder2 = new MyGABreeder2(parameters);
-
+	
 		// Initialize the initial population with repulsion distance 32 for each prey
 
 		IChromosome tempChrom = null;
@@ -202,7 +224,9 @@ public class RuleEvolutionMain_FromInvasion {
 			e.printStackTrace();
 			System.exit( -2);
 		}
-
+		
+		
+		//for each evolution 
 		for (int i = 0; i < numEvolutions; i++) {
 
 			Double fitness = 0.0;
@@ -220,6 +244,9 @@ public class RuleEvolutionMain_FromInvasion {
 				//				Marker.evaluate(pop2);
 				//				Hashtable<Integer,Integer> fitness_values = Marker.statistical_results;
 				//
+				
+				//for each chromosone from population set chromosone again ? 
+				//MAYBE NOT NEEDED 
 				for(int j=0; j<pop2.size(); j++) {
 					IChromosome individual = pop2.getChromosome(j);
 					//individual.setFitnessValueDirectly(fitness_values.get(j));
@@ -228,13 +255,13 @@ public class RuleEvolutionMain_FromInvasion {
 					//System.out.println("Invasion_SwarmVs.java Fitness is .........: " + individual.getFitnessValueDirectly());	
 					//System.out.println("---------------------------------------------");	
 				}	
-
+				//find best solution from chromosone 
 				IChromosome bestSolutionSoFar = pop2.determineFittestChromosome();
 				fitness = bestSolutionSoFar.getFitnessValueDirectly();
 				System.out.println("****************Currently fittest Chromosome has fitness " + fitness);
-				//System.out.println("************************* avg_fitness is " + avg_fitness);
+				
 
-
+				//every interval of 10 	
 				if(i%10==0 ) {
 
 
@@ -243,7 +270,7 @@ public class RuleEvolutionMain_FromInvasion {
 
 						// Write the whole population to a .csv file
 
-						FileWriter writer = new FileWriter(dir1.getCanonicalPath() + "//" + dest_dir2  +"_Evolution//PopulationRecords" + i + ".csv", true);
+						FileWriter writer = new FileWriter(dir1.getCanonicalPath() + "//" + dest_dir2  +"_Predator_Evolution//PopulationRecords" + i + ".csv", true);
 
 
 						for(int aa = 0; aa<PopSize; aa++) {

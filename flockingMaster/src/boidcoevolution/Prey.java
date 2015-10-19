@@ -192,6 +192,7 @@ public class Prey extends Flocker {
 					index = 3;
 				}
 
+				
 				Double temp_repulsion_angle = 0.0;	
 
 				if( Math.abs(beta_ij_List.get(i) + Math.PI/2) <= Math.abs(beta_ij_List.get(i) - Math.PI/2) ) {
@@ -320,6 +321,8 @@ public class Prey extends Flocker {
 				// Only store the minimum time step
 				// Only update it when it is caught 
 				if(catched==1) {
+					
+
 					previouslife = flock.prey_score_table.get(this.flockID);
 					int current_life= life - previouslife.get(previouslife.size()-1);
 					previouslife.add(current_life);
@@ -357,6 +360,41 @@ public class Prey extends Flocker {
 		return bodyLength;
 	}
 
-
-
+	@Override
+	public double getSpeed()
+	{	System.out.println("Overriden speed taken!");
+		return speed;
+	}
+	
+	public ArrayList<Integer> RuleCalculation(ArrayList<Integer> inputs, ArrayList<Integer> Rule) {
+		//Integer TopologicalRule[] = {3, 3, 3, 3, 3};
+		
+/*		ArrayList<Integer> Temp_Rule = new ArrayList<Integer> ();
+		Temp_Rule.add(2);
+		Temp_Rule.add(1);
+		Temp_Rule.add(3);
+		Rule = Temp_Rule;*/
+		
+		ArrayList<Integer> outputs = new ArrayList<Integer>();
+		
+		Iterator<Integer> it = inputs.iterator();
+		int i = 0;
+		//for each input (the distance from the nearest neighbour)
+		while (it.hasNext()) {  
+			int input_i = (Integer) it.next();
+			//if input_i is greater than 0 then = 1 else = 0 
+			input_i = input_i>0? 1 : 0;
+			//System.out.println("input is " + input_i);
+			
+			
+			int output_i = input_i*Rule.get(i);
+			//System.out.println("output_i is " + output_i);
+			outputs.add(output_i);
+			i++;
+		}
+		
+		
+		return outputs;
+	}
+	
 }

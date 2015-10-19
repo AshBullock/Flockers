@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/workspace/flockingV40/libraries/portfolio.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Ashley/Documents/Work/FYP/jgap.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Java3DLib"/>
+	<classpathentry kind="con" path="org.testng.TESTNG_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

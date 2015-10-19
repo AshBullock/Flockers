@@ -35,7 +35,8 @@ public class Flockers extends SimState
 	public int Predator_BodyLength = 4;
 	public double base_speed = 0.7; // how far do we move in a timestep?
 
-	
+	public boolean variableSpeeds = false;
+	public boolean variableSizes = false;
 	
 	public int num_predator = 1; 
 	public int num_preys = 100; 
@@ -45,9 +46,10 @@ public class Flockers extends SimState
 	public ArrayList<Integer> repulsion_distance_array;
 	public ArrayList<Double> speed_array = new ArrayList<Double> ();
 	public ArrayList<Double> size_array = new ArrayList<Double> ();
-	public Integer Predator_maximum_catch;
+	public Integer Predator_maximum_catch=1;
 
 	public ArrayList<ArrayList<Integer>> Rule_array;
+	public ArrayList<ArrayList<Integer>> Predator_Rule_array;
 	public int num_ann_output = 2;
 
 
@@ -85,7 +87,15 @@ public class Flockers extends SimState
 	
 		num_preys = parameters.get("PopSize");
 		arenalength = parameters.get("ArenaSize");
-
+		try{
+			num_predator = parameters.get("PredSize");
+		}
+		catch(Exception e)
+		{
+			num_predator = 1;
+		}
+		 
+			
 		this.setHeight(arenalength);
 		this.setWidth(arenalength);
 		this.setNumPreys(num_preys);
@@ -114,7 +124,15 @@ public class Flockers extends SimState
 
 		for(int ii=0; ii<numFlockers; ii++) {
 			
-			Double speed = 0.7 + 0.1*Samplers.sampleGamma(4, 1/3.3);
+			Double speed = 0.0;
+			if(variableSpeeds)
+			{
+			 speed = 0.7 + 0.1*Samplers.sampleGamma(4, 1/3.3);
+			}
+			else 
+			{
+				speed = base_speed;
+			}
 			
 			//System.out.println("Speed is: " + speed);
 			speed_array.add(speed);	
@@ -161,9 +179,18 @@ public class Flockers extends SimState
 			//System.out.println("Flockers.java repulsion_distance: " + flocker.repulsion_distance);
 			prey.speed = speed_array.get(preycount);
 			
+			if(variableSizes)
+			{
 			prey.size = 1 + 0.2*Samplers.sampleGamma(4, 1/3.3);
 			
+			}
+			else
+			{	
+				prey.size = 1;
+				
+			}
 			prey.bodyLength = prey.bodyLength * prey.size;
+			
 			//System.out.println(prey.bodyLength);
 			preycount++;
 			
@@ -177,7 +204,7 @@ public class Flockers extends SimState
 
 		}
 		
-		for(int ii=0; ii<=num_predator; ii++)
+		for(int ii=0; ii<num_predator; ii++)
 		{
 			Predator pred = new Predator();
 			pred.flockID=ii;
@@ -200,15 +227,22 @@ public class Flockers extends SimState
 			//flocker.lastd = new Double2D(-predator_distance*Math.cos(predator_angle),  -predator_distance*Math.sin(predator_angle));
 			flockers.setObjectLocation(pred, new Double2D(random.nextDouble()*width, random.nextDouble() * height));
 			pred.lastd = new Double2D(random.nextGaussian(), random.nextGaussian());
+			if(variableSpeeds)
+			{
 			double predSpeed = (0.7 + 0.1*Samplers.sampleGamma(4, 1/3.3))*1.2;
 			pred.speed = predSpeed;
+			}
+			else 
+			{
+				 pred.speed = base_speed * 1.2;
+			}
 			//				System.out.println("Predator_maximum_catch: " + Predator_maximum_catch);
 			
 
 			
 
 			//flocker.lastd = new Double2D(random.nextGaussian(), random.nextGaussian());
-			pred.size = 1;
+			pred.size = 2;
 			pred.flockers = flockers;
 			pred.theFlock = this;
 			pred.bodyLength = pred.bodyLength * pred.size;
@@ -220,12 +254,17 @@ public class Flockers extends SimState
 	}
 
 	// return the score as fitness. 
-	public Hashtable<Integer,Integer> runPredatorEvolution(ArrayList<ArrayList<Integer>> Rule_array, ArrayList<Integer> num_neighborhood_array, ArrayList<Integer> time_wasting_array, Hashtable<String,Integer> parameters)
+	public Hashtable<Integer,Integer> runPredatorEvolution(
+			ArrayList<ArrayList<Integer>> Flock_Rule_array,
+			ArrayList<ArrayList<Integer>> Predator_Rule_array, 
+			ArrayList<Integer> num_neighborhood_array, 
+			ArrayList<Integer> time_wasting_array, 
+			Hashtable<String,Integer> parameters)
 	{
 		//System.out.println("nnetList.size() is " + nnetList.size());
 		Flockers flockers = new Flockers(System.currentTimeMillis(), parameters);
-
-		flockers.Rule_array = Rule_array;
+		flockers.Rule_array = Flock_Rule_array;
+		flockers.Predator_Rule_array = Predator_Rule_array;
 		flockers.num_neighborhood_array = num_neighborhood_array;
 		flockers.repulsion_distance_array = time_wasting_array;
 
@@ -254,7 +293,8 @@ public class Flockers extends SimState
 			Integer catched_counter = 0;
 			for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
 			{
-				//System.out.println("Catched_Table is " + flockers.catched_table.get(e.nextElement()));
+				//
+				System.out.println("Catched_Table is " + flockers.pred_catch_table.get(e.nextElement()));
 				catched_counter += flockers.pred_catch_table.get(e.nextElement()) ;
 			}
 
@@ -262,7 +302,7 @@ public class Flockers extends SimState
 			//System.out.println("Steps: " + steps + "catched_counter: " + catched_counter );
 
 
-			if(catched_counter>=1) { //once one prey has been catched
+			if(steps>=36000/100) { //once one prey has been catched
 				System.out.println("Steps: " + steps + "  ------ catched_counter: " + catched_counter );
 				break;
 			}
@@ -281,8 +321,8 @@ public class Flockers extends SimState
 			//ArrayList<Integer> life_list = flockers.score_table.get(index);
 			//median_life = Median(life_list);
 			//System.out.println("median_life is " +  median_life);
-			int fishCaught = 1;
-			fishCaught = flockers.pred_catch_table.get(index)+1;
+			int fishCaught = 0;
+			fishCaught = flockers.pred_catch_table.get(index);
 			int fitness_value = (fishCaught);
 			//System.out.println(flockers.score_table.get(index));
 			//System.out.println("caught_times is ----"+caught_times + "---caught_index" + (Integer)index);
