@@ -47,6 +47,7 @@ extends BreederBase {
 	 */
 	public Population evolve(Population a_pop, Configuration a_conf) {
 		Population pop = a_pop;
+		System.out.println("Pop size = " + a_pop.size());
 		int originalPopSize = a_conf.getPopulationSize();
 
 		IChromosome fittest = null;

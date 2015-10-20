@@ -362,7 +362,7 @@ public class Prey extends Flocker {
 
 	@Override
 	public double getSpeed()
-	{	System.out.println("Overriden speed taken!");
+	{	//System.out.println("Overriden speed taken!");
 		return speed;
 	}
 	

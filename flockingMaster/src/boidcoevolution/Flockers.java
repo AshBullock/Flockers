@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import org.jgap.Population;
+
 import sim.engine.*;
 import sim.util.*;
 import sim.field.continuous.*;
@@ -46,7 +48,7 @@ public class Flockers extends SimState
 	public ArrayList<Integer> repulsion_distance_array;
 	public ArrayList<Double> speed_array = new ArrayList<Double> ();
 	public ArrayList<Double> size_array = new ArrayList<Double> ();
-	public Integer Predator_maximum_catch=1;
+	public Integer Predator_maximum_catch=20;
 
 	public ArrayList<ArrayList<Integer>> Rule_array;
 	public ArrayList<ArrayList<Integer>> Predator_Rule_array;
@@ -82,7 +84,7 @@ public class Flockers extends SimState
 	{
 		
 		super(seed);
-		System.out.println("CREATING NEW FLOCKERS");
+		//System.out.println("CREATING NEW FLOCKERS");
 
 	
 		num_preys = parameters.get("PopSize");
@@ -107,7 +109,7 @@ public class Flockers extends SimState
 
 	public void start()
 	{
-		System.out.println("STarting..");
+		System.out.println("Starting..");
 		super.start();
 
 		// set up the flockers field.  It looks like a discretization
@@ -173,8 +175,15 @@ public class Flockers extends SimState
 			life.add(0);
 			prey_score_table.put(preycount, life);
 			catched_table.put(preycount, 0);
-			prey.num_neighborhood = num_neighborhood_array.get(preycount);
-			prey.repulsion_distance = repulsion_distance_array.get(preycount);				
+			
+			try
+			{
+				prey.num_neighborhood = num_neighborhood_array.get(preycount);
+				prey.repulsion_distance = repulsion_distance_array.get(preycount);	
+			}
+			catch(Exception e)
+			{}
+			
 			//System.out.println("preycount: " + preycount);
 			//System.out.println("Flockers.java repulsion_distance: " + flocker.repulsion_distance);
 			prey.speed = speed_array.get(preycount);
@@ -258,15 +267,25 @@ public class Flockers extends SimState
 			ArrayList<ArrayList<Integer>> Flock_Rule_array,
 			ArrayList<ArrayList<Integer>> Predator_Rule_array, 
 			ArrayList<Integer> num_neighborhood_array, 
-			ArrayList<Integer> time_wasting_array, 
+			ArrayList<Integer> repulsion_array, 
 			Hashtable<String,Integer> parameters)
 	{
+		//System.out.println("RUNNING PREDATOR EV");
+		//System.out.println("Flock rule size = " + Flock_Rule_array.size());
+		//System.out.println("Pred rul size = " + Predator_Rule_array.size());
 		//System.out.println("nnetList.size() is " + nnetList.size());
+		PopulationFileIO PopLoder = new PopulationFileIO(); 
+		Population pop = PopLoder.LoadPopulation("\\DynamicRule", parameters.get("PopSize"));
+
+		PopLoder.readRule(pop);
+		
+		//System.out.println("Repulsion array size: " + repulsion_array.size() +"         num neigh size: " + num_neighborhood_array.size());
+		
 		Flockers flockers = new Flockers(System.currentTimeMillis(), parameters);
 		flockers.Rule_array = Flock_Rule_array;
 		flockers.Predator_Rule_array = Predator_Rule_array;
 		flockers.num_neighborhood_array = num_neighborhood_array;
-		flockers.repulsion_distance_array = time_wasting_array;
+		flockers.repulsion_distance_array = repulsion_array;
 
 		Iterator itr = flockers.repulsion_distance_array.iterator(); 
 		while(itr.hasNext()) {
@@ -277,7 +296,8 @@ public class Flockers extends SimState
 		} 
 
 
-		flockers.Predator_maximum_catch = 20;
+		flockers.Predator_maximum_catch = parameters.get("MaximumCatch");
+		System.out.println("Flockers max catch" + flockers.Predator_maximum_catch);
 
 		flockers.start();
 		long steps = 0;
@@ -291,10 +311,11 @@ public class Flockers extends SimState
 			ArrayList<Integer> fitness = new ArrayList<Integer> ();
 
 			Integer catched_counter = 0;
+			//System.out.println(flockers.pred_catch_table.size());
 			for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
 			{
 				//
-				System.out.println("Catched_Table is " + flockers.pred_catch_table.get(e.nextElement()));
+				//System.out.println("Catched_Table is " + flockers.pred_catch_table.get(e.nextElement()));
 				catched_counter += flockers.pred_catch_table.get(e.nextElement()) ;
 			}
 
@@ -303,7 +324,7 @@ public class Flockers extends SimState
 
 
 			if(steps>=36000/100) { //once one prey has been catched
-				System.out.println("Steps: " + steps + "  ------ catched_counter: " + catched_counter );
+				//System.out.println("Steps: " + steps + "  ------ catched_counter: " + catched_counter );
 				break;
 			}
 		}
@@ -313,7 +334,7 @@ public class Flockers extends SimState
 		//!!!!!!!!!!!!!!!!!!!!!!!!!
 		Hashtable<Integer,Integer> fitness = new Hashtable<Integer,Integer> ();
 
-		for (Enumeration e = flockers.prey_score_table.keys(); e.hasMoreElements();)
+		for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
 		{
 			Object index = e.nextElement();
 
@@ -336,7 +357,7 @@ public class Flockers extends SimState
 	}   
 	
 	
-	// return the score as fitness. 
+	// return the score as fitness.  NEED TO ADD PREDATOR POPLOADER
 		public Hashtable<Integer,Integer> run(ArrayList<ArrayList<Integer>> Rule_array, ArrayList<Integer> num_neighborhood_array, ArrayList<Integer> time_wasting_array, Hashtable<String,Integer> parameters)
 		{
 			//System.out.println("nnetList.size() is " + nnetList.size());

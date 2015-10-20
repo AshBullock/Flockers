@@ -29,6 +29,7 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 	ArrayList<ArrayList<Integer>> Predator_Rule_array = new ArrayList<ArrayList<Integer>>();
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
+	
 
 
 	
@@ -50,6 +51,7 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 	
 		for (int i=0;i<predPop.size();i++) {
 			IChromosome a_subject = predPop.getChromosome(i);
+			int numGenes = a_subject.size();
 			//System.out.println("Chromosome hash code is: " + a_subject.hashCode());
 	
 			// Last allele is the number of neighbourhood
@@ -57,18 +59,19 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 	
 			Integer repulsion_dis = 5;
 			
-			
-			num_neighborhood_array.add(num_neighborhood);
-			repulsion_array.add(repulsion_dis);
-	
-			for (int j=0; j<num_neighborhood; j++) {
-	
+		
+		
+			//System.out.println("Number of genes is..........." + numGenes);
+			//System.out.println("a_subject size ......." + a_subject.size());
+			for (int j=0; j<numGenes; j++) {
+				//System.out.println("j = " + j);
 				Double temp_output = (Double) a_subject.getGene(j).getAllele();
 				Integer rule_output = temp_output.intValue();
 				Rule_j.add(rule_output);
 			}
 	
 			Predator_Rule_array.add(Rule_j);
+			//System.out.println("Predator rule array = ..... " + Rule_j.size());
 		}
 	
 	}
@@ -77,15 +80,20 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 	
 	
 		readRule(pop);
+	
 		
 		/**
 		 *Selects the prey population to use here.
 		 */
 		PopulationFileIO PopLoader = new PopulationFileIO(); 
+		//System.out.println("PopSIZE: " + global_parameters.get("PopSize"));
 		Population flockerPop = PopLoader.LoadPopulation("\\DynamicRule", global_parameters.get("PopSize"));
 
 		PopLoader.readRule(flockerPop);
 		Flock_Rule_array =  PopLoader.Rule_array;
+		num_neighborhood_array = PopLoader.num_neighborhood_array;
+		repulsion_array = PopLoader.repulsion_array;
+		
 		//MersenneTwisterFast randomnum = new MersenneTwisterFast();
 		//theFlock.run(randomnum.nextInt());
 		
@@ -93,7 +101,7 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 		//need to change for predator
 		statistical_results = theFlock.runPredatorEvolution(Flock_Rule_array, Predator_Rule_array, num_neighborhood_array, repulsion_array, global_parameters);
 	
-		System.out.println(pop.size());
+		//System.out.println(pop.size());
 	
 	
 		for (int i=0;i<pop.size();i++) {

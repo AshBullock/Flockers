@@ -78,7 +78,7 @@ public class PopulationFileIO {
 					}
 					catch(Exception e)
 					{
-						System.out.println("I am here");
+						//System.out.println("I am here");
 						allevalue = (int) Double.parseDouble(tempalle);	
 					}
 					//System.out.println ("the allele vaule is " + allevalue);
@@ -136,6 +136,8 @@ public class PopulationFileIO {
 		
 		for (int i=0;i<pop.size();i++) {
 			IChromosome a_subject = pop.getChromosome(i);
+			int numGenes = a_subject.size();
+			//System.out.println("Num of genes: " + numGenes);
 			//System.out.println("Chromosome hash code is: " + a_subject.hashCode());
 			
 			// Last allele is the number of neighbourhood
@@ -148,11 +150,12 @@ public class PopulationFileIO {
 			num_neighborhood_array.add(3);
 			repulsion_array.add(5);
 
-			for (int j=0; j<num_neighborhood; j++) {
-							
+			for (int j=0; j<numGenes-2; j++) {
+					
 					Integer rule_output = (Integer) a_subject.getGene(j+2).getAllele();
 					Rule_j.add(rule_output);
 			}
+			
 
 			Rule_array.add(Rule_j);
 		}
