@@ -48,10 +48,18 @@ public class Predator extends Flocker{
 	@Override
 	public void step(SimState state)
 	{        
+		
+		
 		//System.out.println("Predator step..");
 		final Flockers flock = (Flockers)state;
 		loc = flock.flockers.getObjectLocation(this);
-
+		
+		
+		//if it is the last step of the simulation update the predators final energy
+		if(state.schedule.getSteps() == flock.getMaxStepCount()-1)
+		{
+			updateEnergy(this, flock);
+		}
 
 		//System.out.print("number of neighbour " + theFlock.num_neighborhood + "\n");
 
@@ -107,7 +115,7 @@ public class Predator extends Flocker{
 					
 					
 					
-					alpha = predatorChaseClosest(b_predator, flock.flockers, nearestNeighbours_predator, flock, ruleOutput);
+					alpha = predatorMoveSelector(b_predator, flock.flockers, nearestNeighbours_predator, flock, ruleOutput);
 					double speedMod = speed/0.7;
 					predEnergy = predEnergy - (1*speedMod);
 					//System.out.println("PredEnergy =" + predEnergy);
@@ -137,7 +145,7 @@ public class Predator extends Flocker{
 
 	}
 
-	public double predatorChaseClosest(Bag b, Continuous2D flockers, ArrayList<Integer> nearestNeighbours,  Flockers flock, ArrayList<Integer>ruleOutput)
+	public double predatorMoveSelector(Bag b, Continuous2D flockers, ArrayList<Integer> nearestNeighbours,  Flockers flock, ArrayList<Integer>ruleOutput)
 
 	{
 
@@ -155,7 +163,7 @@ public class Predator extends Flocker{
 		if (b==null || b.numObjs == 0 || nearestNeighbours.size()==0) {
 			//System.out.print(temp_alpha+"\n");
 			//System.out.println("moveMod: " + moveModifier);
-			double speedPercent = (double)moveModifier/100;
+			double speedPercent = (double)moveModifier/10;
 			//System.out.println("Speed modifier = " + speedPercent);
 			speed = flock.base_speed * speedPercent;
 			//System.out.println("speed = " + speed);
@@ -261,6 +269,7 @@ public class Predator extends Flocker{
 						//prioritises inner fish
 						else if(tactic == 2)
 						{	
+							//System.out.println("Using chase inner");
 							Double distance = Math.sqrt(Math.pow(dx, 2) +Math.pow(dy,2));
 							if (lensquared <= r2 * r2 && !other.isPredator(other) && !other.dead && (isInnerFish(other,b) || distance > 30 || distance < 20 ))
 							{
@@ -274,7 +283,7 @@ public class Predator extends Flocker{
 								
 								accelation_flag = true;
 								speed = flock.base_speed*1.2;
-								return  beta_ij;
+								rreturn  beta_ij;
 							}
 						}
 					}
@@ -491,7 +500,11 @@ public class Predator extends Flocker{
 			
 	}
 
-	
+	private void updateEnergy(Predator predator, Flockers flock)
+	{
+		
+		flock.pred_energy_table.put(predator.flockID, predator.predEnergy-1);
+	}
 	private void catchedFish(Flocker other, Flockers flock) {
 		
 		Num_catched_prey += 1;
@@ -508,7 +521,7 @@ public class Predator extends Flocker{
 		
 		
 		energy = 0;
-		predEnergy+=500;
+		predEnergy+=100;
 		
 		//System.out.println("Catched something !!!!!! ");
 		//System.out.println("Num_Catched prey = " + Num_catched_prey);
@@ -542,21 +555,16 @@ public class Predator extends Flocker{
 	private int getTotalCatchedPrey(Flockers flock)
 	{
 		int count = 0;
-		//System.out.println("Pred catch table size =" + flock.pred_catch_table.size());
+		
 		for (Enumeration e = flock.pred_catch_table.elements(); e.hasMoreElements();)
 		{
-			//System.out.println("count:" + count);
-			
+	
 			count += (int) e.nextElement();
 		}
 		return count;
 		
 	} 
-	//public double predatorRuleBasedDecision( ArrayList<Integer>  Rule, Bag b, Continuous2D flockers, ArrayList<Integer> nearestNeighbours, Flockers flock)
-	//{
-		
-		
-	//}
+
 	
 	@Override
 	public double getBodyLength()
@@ -568,13 +576,7 @@ public class Predator extends Flocker{
 	
 	public ArrayList<Integer> RuleCalculation(ArrayList<Integer> inputs, ArrayList<Integer> Rule) {
 		// currently do not use inputs to affect rules
-		//System.out.println("Rule size = " + Rule.size());
-		//System.out.println("HERRRE");
-		//System.out.println("Rule size" + Rule.size());
-		for(int i=0; i<Rule.size();i++){
-			//System.out.print("RUL: "+Rule.get(i));
-		}
-		//System.out.println();
+
 		return Rule;
 	}
 

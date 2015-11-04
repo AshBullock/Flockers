@@ -47,7 +47,7 @@ extends BreederBase {
 	 */
 	public Population evolve(Population a_pop, Configuration a_conf) {
 		Population pop = a_pop;
-		
+		//System.out.println("Pop size = " + a_pop.size());
 		int originalPopSize = a_conf.getPopulationSize();
 
 		IChromosome fittest = null;
@@ -79,8 +79,7 @@ extends BreederBase {
 			// chromosomes than the wanted number. But this is no bad thing as
 			// more alternatives mean better chances having a fit candidate.
 			// If it is not the last call to evolve() then the next call will
-			// ensure th
-			
+			// ensure the correct population size by calling keepPopSizeConstant.
 			// ------------------------------------------------------------------
 			keepPopSizeConstant(pop, a_conf);
 		}
@@ -130,34 +129,14 @@ extends BreederBase {
 		// Apply certain NaturalSelectors after GeneticOperators have been applied.
 		// ------------------------------------------------------------------------
 		pop = applyNaturalSelectors(a_conf, pop, false);
-		
 	
-
-		// Inject mutant
-//		for(int j=0; j<num_injection; j++) {
-//			pop.setChromosome(j, mutant);
-//		}		
-
-		//    if (bulkFunction != null) {
-		//
-		//        /**@todo utilize jobs: bulk fitness function is not so important for a
-		//         * prototype! */
-		//        bulkFunction.evaluate(pop);      
-		//      }
-		// Assign fitess by simulation
-		// Ensure fitness value of all chromosomes is udpated.
-		// ---------------------------------------------------
-		
 		Marker.evaluate(pop);
-		Hashtable<Integer,Integer> fitness_values = Marker.statistical_results;
+		Hashtable<Integer,Integer> fitness_values = Marker.av_statistical_results;
 		for(int j=0; j<pop.size(); j++) {
 			IChromosome individual = pop.getChromosome(j);
 			individual.setFitnessValueDirectly(fitness_values.get(j));
 			pop.setChromosome(j, individual);
-			//System.out.println("Repulsion is .........: " + individual.getGene(1501));	
-			//System.out.println("individual hash code .........: " + individual.hashCode());
-			//System.out.println("Fitness is .........: " + fitness_values.get(j));	
-			//System.out.println("---------------------------------------------");	
+		
 		}	    
 
 		updateChromosomes(pop, a_conf);    
@@ -203,8 +182,15 @@ extends BreederBase {
 		// -------------------------------------------------------
 		m_lastPop = pop;
 		m_lastConf = a_conf;
+	
+		
+		
+		applyGeneticOperators(a_conf, pop);
 		a_conf.getEventManager().fireGeneticEvent(
 				new GeneticEvent(GeneticEvent.GENOTYPE_EVOLVED_EVENT, this));
+		
+		
+		
 		
 		
 		return pop;

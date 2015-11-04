@@ -53,7 +53,7 @@ public class PopulationFileIO {
 			// command line parameter
 			File dir1 = new File (".");
 			File destinationFile = new File(dir1.getCanonicalPath()  + name + ".csv");
-			System.out.println (dir1.getCanonicalPath()  + name + ".csv");
+			//System.out.println (dir1.getCanonicalPath()  + name + ".csv");
 			FileInputStream fstream = new FileInputStream(destinationFile);
 			// Get the object of DataInputStream
 			DataInputStream in = new DataInputStream(fstream);
@@ -79,7 +79,9 @@ public class PopulationFileIO {
 					catch(Exception e)
 					{
 						//System.out.println("I am here");
-						allevalue = (int) Double.parseDouble(tempalle);	
+						Double value = Double.parseDouble(tempalle);
+	
+						allevalue = (int)Math.round(value);	
 					}
 					//System.out.println ("the allele vaule is " + allevalue);
 					temparray.add(allevalue);

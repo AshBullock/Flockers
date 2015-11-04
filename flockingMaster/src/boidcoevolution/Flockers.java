@@ -36,6 +36,7 @@ public class Flockers extends SimState
 	public int Prey_BodyLength = 2;
 	public int Predator_BodyLength = 4;
 	public double base_speed = 0.7; // how far do we move in a timestep?
+	public int maxStepCount = 1000;
 
 	public boolean variableSpeeds = false;
 	public boolean variableSizes = false;
@@ -63,6 +64,7 @@ public class Flockers extends SimState
 	Hashtable<Integer,ArrayList<Integer>> prey_score_table = new Hashtable<Integer,ArrayList<Integer>>();
 	Hashtable<Integer,Integer> catched_table = new Hashtable<Integer,Integer>();
 	Hashtable<Integer,Integer> pred_catch_table = new Hashtable<Integer,Integer>();
+	Hashtable<Integer,Double> pred_energy_table = new Hashtable<Integer,Double>();
 
 
 	public int getNumFlockers() { return numFlockers; }
@@ -102,8 +104,8 @@ public class Flockers extends SimState
 		this.setWidth(arenalength);
 		this.setNumPreys(num_preys);
 		this.setNumFlockers(num_preys+num_predator);
-		System.out.println("width and length in Flockers.java is: " + width);
-		System.out.println("num_preys in Flockers.java is: " + num_preys +"Number of predators: "+ num_predator);
+		//System.out.println("width and length in Flockers.java is: " + width);
+		//System.out.println("num_preys in Flockers.java is: " + num_preys +"Number of predators: "+ num_predator);
 
 	}
 
@@ -270,16 +272,7 @@ public class Flockers extends SimState
 			ArrayList<Integer> repulsion_array, 
 			Hashtable<String,Integer> parameters)
 	{
-		//System.out.println("RUNNING PREDATOR EV");
-		//System.out.println("Flock rule size = " + Flock_Rule_array.size());
-		//System.out.println("Pred rul size = " + Predator_Rule_array.size());
-		//System.out.println("nnetList.size() is " + nnetList.size());
-		PopulationFileIO PopLoder = new PopulationFileIO(); 
-		Population pop = PopLoder.LoadPopulation("\\DynamicRule", parameters.get("PopSize"));
-
-		PopLoder.readRule(pop);
 		
-		//System.out.println("Repulsion array size: " + repulsion_array.size() +"         num neigh size: " + num_neighborhood_array.size());
 		
 		Flockers flockers = new Flockers(System.currentTimeMillis(), parameters);
 		flockers.Rule_array = Flock_Rule_array;
@@ -297,56 +290,54 @@ public class Flockers extends SimState
 
 
 		flockers.Predator_maximum_catch = parameters.get("MaximumCatch");
-		System.out.println("Flockers max catch" + flockers.Predator_maximum_catch);
+		//System.out.println("Flockers max catch" + flockers.Predator_maximum_catch);
 
 		flockers.start();
 		long steps = 0;
 		// maximum number of steps
-		int max_steps = 36000; // 1 hour //36000 steps are one hour: 10*10*60*1;
-		while(steps < max_steps )
+		while(steps < maxStepCount )
 		{
+			
 			if (!flockers.schedule.step(flockers))
 				break;
 
-			ArrayList<Integer> fitness = new ArrayList<Integer> ();
-
 			Integer catched_counter = 0;
-			//System.out.println(flockers.pred_catch_table.size());
+			
+		
 			for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
 			{
-				//
-				//System.out.println("Catched_Table is " + flockers.pred_catch_table.get(e.nextElement()));
+				
+				
 				catched_counter += flockers.pred_catch_table.get(e.nextElement()) ;
 			}
-
+			
 			steps = flockers.schedule.getSteps();
-			//System.out.println("Steps: " + steps + "catched_counter: " + catched_counter );
 
-
-			if(steps>=36000/100) { //once one prey has been catched
-				//System.out.println("Steps: " + steps + "  ------ catched_counter: " + catched_counter );
+			if(catched_counter >= Predator_maximum_catch ) {
 				break;
 			}
 		}
 
-		//System.out.println("############steps is " + steps);
-		//WORK ENERGY INTO Fitness
-		//!!!!!!!!!!!!!!!!!!!!!!!!!
+		
 		Hashtable<Integer,Integer> fitness = new Hashtable<Integer,Integer> ();
 
 		for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
 		{
 			Object index = e.nextElement();
-
-			int median_life = 0; 
-			//ArrayList<Integer> life_list = flockers.score_table.get(index);
-			//median_life = Median(life_list);
-			//System.out.println("median_life is " +  median_life);
+			double predEnergy = flockers.pred_energy_table.get(index);
+			System.out.println("Predator energy = " + predEnergy);
+			
+			
 			int fishCaught = 0;
 			fishCaught = flockers.pred_catch_table.get(index);
-			int fitness_value = (fishCaught);
-			//System.out.println(flockers.score_table.get(index));
-			//System.out.println("caught_times is ----"+caught_times + "---caught_index" + (Integer)index);
+			System.out.println("Fish Caught = " + fishCaught);
+			
+			double _value = ((double) ((fishCaught*10) + (predEnergy/20))/150)*100;
+			int fitness_value =(int) _value;
+			
+			System.out.println("Fitness = " + fitness_value);
+			//int fintness_value = fishCaught;
+				
 			fitness.put((Integer)index, fitness_value);
 		}
 
@@ -382,7 +373,7 @@ public class Flockers extends SimState
 			flockers.start();
 			long steps = 0;
 			// maximum number of steps
-			int max_steps = 36000; // 1 hour //36000 steps are one hour: 10*10*60*1;
+			int max_steps = 1000; // 1 hour //36000 steps are one hour: 10*10*60*1;
 			while(steps < max_steps )
 			{
 				if (!flockers.schedule.step(flockers))
@@ -407,18 +398,16 @@ public class Flockers extends SimState
 				}
 			}
 
-			//System.out.println("############steps is " + steps);
-
+			
 			Hashtable<Integer,Integer> fitness = new Hashtable<Integer,Integer> ();
 
+		
 			for (Enumeration e = flockers.prey_score_table.keys(); e.hasMoreElements();)
 			{
 				Object index = e.nextElement();
 
-				int median_life = 0; 
-				//ArrayList<Integer> life_list = flockers.score_table.get(index);
-				//median_life = Median(life_list);
-				//System.out.println("median_life is " +  median_life);
+				
+				
 				int caught_times = 1;
 				caught_times = flockers.catched_table.get(index)+1;
 				int fitness_value = (100-caught_times);
@@ -448,6 +437,11 @@ public class Flockers extends SimState
 
 			return (lower + upper) / 2;
 		}	
+	}
+	
+	public int getMaxStepCount()
+	{
+		return maxStepCount;
 	}
 
 

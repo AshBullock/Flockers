@@ -57,8 +57,8 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 	public static void main(String[] args)
 	{
 		
-		parameters.put("PopSize", 100);
-		parameters.put("ArenaSize", 1000);
+		parameters.put("PopSize", 200);
+		parameters.put("ArenaSize", 300);
 		parameters.put("PredSize", 1);
 		FlockersWithUI_FinalGenObser flocking = new FlockersWithUI_FinalGenObser();  // randomizes by currentTimeMillis        
 		Console c = new Console(flocking);
@@ -97,7 +97,7 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 		PopLoder.readRule(pop);
 		
 		PopulationFileIO PredPopLoader = new PopulationFileIO();
-		Population predPop = PredPopLoader.LoadPopulation("\\PredatorTest", parameters.get("PredSize"));
+		Population predPop = PredPopLoader.LoadPopulation("\\1_PopSize100_ArenaSize200_NumPredators1_FlockRule=Dynamic\\PopulationRecords-FITTEST", parameters.get("PredSize"));
 		PredPopLoader.readRule(predPop);
 
 		flock.Rule_array = PopLoder.Rule_array;
