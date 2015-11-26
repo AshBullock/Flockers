@@ -22,21 +22,19 @@ import org.jgap.impl.DoubleGene;
 
 import sim.display.Display2D;
 
-public class PredatorRuleEvolution {
+public class DynamicSwarmComparison {
 
 	public Display2D display;
 	public JFrame displayFrame;
 	
 
-	
 
 	public static void main(String[] args) {
 		// used for evolved population
 		//create populations of chromosones 
 		
-		int MaximumCatch = 20;
-		String flockRule = "dynamic";
-		int dynamicSwarmComparison = 1; //whether we want to compare dynamic and swarm 
+		int MaximumCatch = 200;
+		String flockRule = "swarm";
 
 		//Allows user to specify the number of runs 
 		String run_num = args[0];
@@ -70,11 +68,7 @@ public class PredatorRuleEvolution {
 		dest_dir2 += "_ArenaSize";
 		dest_dir2 += ReadArenaSize;
 		dest_dir2 += "_NumPredators" + PredSize;
-		if(dynamicSwarmComparison == 1)
-			dest_dir2 += "_DynamicSwarmComparison";
-		else
-			dest_dir2 += "_FlockRule="+ flockRule;
-
+		dest_dir2 += "_FlockRule="+ flockRule;
 		
 		
 		flockRule = flockRule.toLowerCase();
@@ -97,7 +91,6 @@ public class PredatorRuleEvolution {
 		parameters.put("PredSize", PredSize);
 		parameters.put("MaximumCatch", MaximumCatch);
 		parameters.put("FlockType", flockType);
-		parameters.put("DynamicSwarmComparison", dynamicSwarmComparison);
 
 		//create a new file with name dependant on arena and pop size  
 		try {			
@@ -152,9 +145,9 @@ public class PredatorRuleEvolution {
 			sampleGenes[0] = new DoubleGene(gaConf,0,10); //distanceWillChase
 			sampleGenes[1] = new DoubleGene(gaConf,0,10); //move_modifier
 			sampleGenes[2] = new DoubleGene(gaConf,0,10); // size of group prioritised
-			sampleGenes[3] = new DoubleGene(gaConf, 1, 2); //tactic 1-anticipate 2- chase inner
+			sampleGenes[3] = new DoubleGene(gaConf, 1, 2); //tactic   
 			sampleGenes[4] = new DoubleGene(gaConf, 0,1 ); //dynamic modifier 
-			sampleGenes[5] = new DoubleGene(gaConf, 0,1 ); //swarm modifier 
+			sampleGenes[4] = new DoubleGene(gaConf, 0,1 ); //swarm modifier 
 			
 			//create and set the sample chromosone 
 			Chromosome sampleChromosome = new Chromosome(gaConf, sampleGenes );
@@ -189,7 +182,7 @@ public class PredatorRuleEvolution {
 		PredatorGABreeder breeder = new PredatorGABreeder(parameters);
 	
 		
-		try { 
+		try {
 			genotype = new Genotype(gaConf, population);
 		}
 		catch (InvalidConfigurationException e) {
@@ -304,7 +297,6 @@ public class PredatorRuleEvolution {
 							writer.append(allele.toString());
 							writer.append(',');
 						}
-					
 						writer.append('\n');
 
 					}

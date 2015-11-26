@@ -69,7 +69,7 @@ public class Prey extends Flocker {
 		
 	
 	
-	public double preyRuleBasedDecision( ArrayList<Integer>  Rule, Bag b, Continuous2D flockers, ArrayList<Integer> nearestNeighbours, Flockers flock) 
+	public double preyRuleBasedDecision( ArrayList<Double>  rule, Bag b, Continuous2D flockers, ArrayList<Integer> nearestNeighbours, Flockers flock) 
 	{ 
 		
 		
@@ -174,7 +174,7 @@ public class Prey extends Flocker {
 
 
 
-		ArrayList<Integer> ANNOutput = RuleCalculation(inputs, Rule);
+		ArrayList<Integer> ANNOutput = RuleCalculation(inputs, rule);
 
 		if(ANNOutput==null) {
 			//System.out.println("annoOutput is null");
@@ -286,17 +286,17 @@ public class Prey extends Flocker {
 			}
 
 
-			repulsion_distance = flock.repulsion_distance_array.get(flockID);
+			repulsion_distance = flock.repulsion_distance_array.get(flockID).intValue();
 			//			System.out.print("Catched a fish. Hashcode is " + this.hashCode() +"\n");
 			//			System.out.print("Catched a fish. flockID is " + this.flockID +"\n");
 			//			System.out.print("Catched a fish. other.repulsion_distance is " + this.repulsion_distance +"\n"); 
-			num_neighborhood = flock.num_neighborhood_array.get(flockID);
+			num_neighborhood = flock.num_neighborhood_array.get(flockID).intValue();
 			// obtain speed from speed_array which is from the gamma distribution 
 
 			if(num_neighborhood!=0 && this.dead!=true) {				
 				b_prey = flockers.getObjectsWithinDistance(loc, 15, true);
 				nearestNeighbours_prey = getNearestNeighbours(b_prey);
-				ArrayList<Integer> Rule = flock.Rule_array.get(flockID);
+				ArrayList<Double> Rule = flock.Rule_array.get(flockID);
 				
 				alpha = preyRuleBasedDecision(Rule, b_prey,flock.flockers, nearestNeighbours_prey, flock);
 			}
@@ -366,7 +366,7 @@ public class Prey extends Flocker {
 		return speed;
 	}
 	
-	public ArrayList<Integer> RuleCalculation(ArrayList<Integer> inputs, ArrayList<Integer> Rule) {
+	public ArrayList<Integer> RuleCalculation(ArrayList<Integer> inputs, ArrayList<Double> rule) {
 		//Integer TopologicalRule[] = {3, 3, 3, 3, 3};
 		
 /*		ArrayList<Integer> Temp_Rule = new ArrayList<Integer> ();
@@ -387,7 +387,7 @@ public class Prey extends Flocker {
 			//System.out.println("input is " + input_i);
 			
 			
-			int output_i = input_i*Rule.get(i);
+			int output_i = (int) (input_i*rule.get(i));
 			//System.out.println("output_i is " + output_i);
 			outputs.add(output_i);
 			i++;

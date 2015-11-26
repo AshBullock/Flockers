@@ -9,8 +9,11 @@ package boidcoevolution;
 import sim.engine.*;
 import sim.display.*;
 import sim.portrayal.continuous.*;
+
 import javax.swing.*;
+
 import java.awt.*;
+
 import sim.portrayal.simple.*;
 import sim.portrayal.SimplePortrayal2D;
 
@@ -21,7 +24,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
-
 import java.io.DataInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -40,15 +42,20 @@ import org.jgap.IChromosome;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.Population;
 
+import boidcoevolution.Flockers.PreyType;
+
 
 public class FlockersWithUI_FinalGenObser extends GUIState
 {
 	public Display2D display;
 	public JFrame displayFrame;
-	
+	public Flockers flock;
 	ArrayList<ArrayList<Integer>> Rule_array = new ArrayList<ArrayList<Integer>>(); 
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
+	
+	private String type = "Swarm";
+	private String predAddress = "\\2_PopSize100_ArenaSize300_NumPredators1_DynamicSwarmComparison_Max20\\PopulationRecords-FITTEST";
 	
 	public static Hashtable<String,Integer> parameters = new Hashtable<String,Integer>();
 	
@@ -57,12 +64,17 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 	public static void main(String[] args)
 	{
 		
-		parameters.put("PopSize", 200);
-		parameters.put("ArenaSize", 300);
+		parameters.put("PopSize", 100);
+		parameters.put("ArenaSize", 400);
 		parameters.put("PredSize", 1);
+		parameters.put("MaximumCatch", 20);
+	
+		parameters.put("DynamicSwarmComparison", 1);
 		FlockersWithUI_FinalGenObser flocking = new FlockersWithUI_FinalGenObser();  // randomizes by currentTimeMillis        
 		Console c = new Console(flocking);
 		c.setVisible(true);
+		
+		
 	}
 
 	public Object getSimulationInspectedObject() { return state; }  // non-volatile
@@ -86,18 +98,18 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 
 
 		
-		Flockers flock = (Flockers)state;
+		flock = (Flockers)state;
 
 
 
 
 		PopulationFileIO PopLoder = new PopulationFileIO(); 
-		Population pop = PopLoder.LoadPopulation("\\DynamicRule", parameters.get("PopSize"));
-
+		Population pop = PopLoder.LoadPopulation("\\"+type+"Rule", parameters.get("PopSize"));
+		
 		PopLoder.readRule(pop);
 		
 		PopulationFileIO PredPopLoader = new PopulationFileIO();
-		Population predPop = PredPopLoader.LoadPopulation("\\1_PopSize100_ArenaSize200_NumPredators1_FlockRule=Dynamic\\PopulationRecords-FITTEST", parameters.get("PredSize"));
+		Population predPop = PredPopLoader.LoadPopulation(predAddress, parameters.get("PredSize"));
 		PredPopLoader.readRule(predPop);
 
 		flock.Rule_array = PopLoder.Rule_array;
@@ -105,7 +117,13 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 		flock.num_neighborhood_array = PopLoder.num_neighborhood_array;
 		flock.repulsion_distance_array = PopLoder.repulsion_array;
 		flock.Predator_maximum_catch = 10;
-		
+		if(parameters.get("DynamicSwarmComparison") ==1)
+		{
+			if(type.equals("Swarm"))
+				flock.preyType = PreyType.SWARM;
+			else
+				flock.preyType = PreyType.DYNAMIC;
+		}
 		super.start();
 		setupPortrayals();
 

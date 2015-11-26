@@ -37,6 +37,9 @@ public class Flockers extends SimState
 	public int Predator_BodyLength = 4;
 	public double base_speed = 0.7; // how far do we move in a timestep?
 	public int maxStepCount = 1000;
+	public PreyType preyType;
+	public boolean changedPreyType= false;
+	public boolean dynamicSwarmComparison = true;
 
 	public boolean variableSpeeds = false;
 	public boolean variableSizes = false;
@@ -51,9 +54,10 @@ public class Flockers extends SimState
 	public ArrayList<Double> size_array = new ArrayList<Double> ();
 	public Integer Predator_maximum_catch=20;
 
-	public ArrayList<ArrayList<Integer>> Rule_array;
-	public ArrayList<ArrayList<Integer>> Predator_Rule_array;
+	public ArrayList<ArrayList<Double>> Rule_array;
+	public ArrayList<ArrayList<Double>> Predator_Rule_array;
 	public int num_ann_output = 2;
+	
 
 
 
@@ -66,7 +70,7 @@ public class Flockers extends SimState
 	Hashtable<Integer,Integer> pred_catch_table = new Hashtable<Integer,Integer>();
 	Hashtable<Integer,Double> pred_energy_table = new Hashtable<Integer,Double>();
 
-
+	
 	public int getNumFlockers() { return numFlockers; }
 	public void setNumFlockers(int val) { if (val >= 1) numFlockers = val; }
 	public double getWidth() { return width; }
@@ -80,6 +84,10 @@ public class Flockers extends SimState
 
 
 	public void setScore(int val) {score = val;}
+	
+	public enum PreyType {
+	    DYNAMIC, RANDOM, SWARM 
+	}
 
 	/** Creates a Flockers simulation with the given random number seed. */
 	public Flockers(long seed, Hashtable<String,Integer> parameters)
@@ -108,10 +116,13 @@ public class Flockers extends SimState
 		//System.out.println("num_preys in Flockers.java is: " + num_preys +"Number of predators: "+ num_predator);
 
 	}
-
+	public void restart()
+	{
+		super.start();
+	}
 	public void start()
 	{
-		System.out.println("Starting..");
+		
 		super.start();
 
 		// set up the flockers field.  It looks like a discretization
@@ -180,8 +191,8 @@ public class Flockers extends SimState
 			
 			try
 			{
-				prey.num_neighborhood = num_neighborhood_array.get(preycount);
-				prey.repulsion_distance = repulsion_distance_array.get(preycount);	
+				prey.num_neighborhood = num_neighborhood_array.get(preycount).intValue();
+				prey.repulsion_distance = repulsion_distance_array.get(preycount).intValue();	
 			}
 			catch(Exception e)
 			{}
@@ -266,14 +277,14 @@ public class Flockers extends SimState
 
 	// return the score as fitness. 
 	public Hashtable<Integer,Integer> runPredatorEvolution(
-			ArrayList<ArrayList<Integer>> Flock_Rule_array,
-			ArrayList<ArrayList<Integer>> Predator_Rule_array, 
+			ArrayList<ArrayList<Double>> Flock_Rule_array,
+			ArrayList<ArrayList<Double>> Predator_Rule_array, 
 			ArrayList<Integer> num_neighborhood_array, 
 			ArrayList<Integer> repulsion_array, 
 			Hashtable<String,Integer> parameters)
 	{
 		
-		
+		dynamicSwarmComparison = false;
 		Flockers flockers = new Flockers(System.currentTimeMillis(), parameters);
 		flockers.Rule_array = Flock_Rule_array;
 		flockers.Predator_Rule_array = Predator_Rule_array;
@@ -314,6 +325,7 @@ public class Flockers extends SimState
 			steps = flockers.schedule.getSteps();
 
 			if(catched_counter >= Predator_maximum_catch ) {
+				
 				break;
 			}
 		}
@@ -324,10 +336,15 @@ public class Flockers extends SimState
 		for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
 		{
 			Object index = e.nextElement();
+			int flockID = (int)index;
+			System.out.println("INDEX = " + index.toString()+"       pred energy table size = " + flockers.pred_energy_table.size());
 			double predEnergy = flockers.pred_energy_table.get(index);
 			System.out.println("Predator energy = " + predEnergy);
-			
-			
+				
+				
+			ArrayList<Double> rule = flockers.Predator_Rule_array.get(flockID);
+			double dynamicModifier = rule.get(4); //get swarm/dynamic modifier	
+			double swarmModifier = rule.get(5);
 			int fishCaught = 0;
 			fishCaught = flockers.pred_catch_table.get(index);
 			System.out.println("Fish Caught = " + fishCaught);
@@ -349,7 +366,7 @@ public class Flockers extends SimState
 	
 	
 	// return the score as fitness.  NEED TO ADD PREDATOR POPLOADER
-		public Hashtable<Integer,Integer> run(ArrayList<ArrayList<Integer>> Rule_array, ArrayList<Integer> num_neighborhood_array, ArrayList<Integer> time_wasting_array, Hashtable<String,Integer> parameters)
+		public Hashtable<Integer,Integer> run(ArrayList<ArrayList<Double>> Rule_array, ArrayList<Integer> num_neighborhood_array, ArrayList<Integer> time_wasting_array, Hashtable<String,Integer> parameters)
 		{
 			//System.out.println("nnetList.size() is " + nnetList.size());
 			Flockers flockers = new Flockers(System.currentTimeMillis(), parameters);
@@ -368,7 +385,7 @@ public class Flockers extends SimState
 			} 
 
 
-			flockers.Predator_maximum_catch = 20;
+			flockers.Predator_maximum_catch = 15;
 
 			flockers.start();
 			long steps = 0;
@@ -443,6 +460,274 @@ public class Flockers extends SimState
 	{
 		return maxStepCount;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public Hashtable<Integer, Integer> runDynamicSwarmComparison(
+			ArrayList<ArrayList<Double>> flock_Rule_array,
+			ArrayList<ArrayList<Double>> predator_Rule_array2,
+			ArrayList<Integer> num_neighborhood_array2,
+			ArrayList<Integer> repulsion_array,
+			Hashtable<String, Integer> parameters, Population swarmPop) {
+		System.out.println("             Running dynamic population:");
+		
+		Flockers flockers = new Flockers(System.currentTimeMillis(), parameters);
+		flockers.preyType = PreyType.DYNAMIC;
+		flockers.Rule_array = flock_Rule_array;
+		flockers.Predator_Rule_array = predator_Rule_array2;
+		flockers.num_neighborhood_array = num_neighborhood_array2;
+		flockers.repulsion_distance_array = repulsion_array;
+
+		Iterator itr = flockers.repulsion_distance_array.iterator(); 
+		while(itr.hasNext()) {
+
+			Object element = itr.next(); 
+			//System.out.println("repulsion_distance is " + (Integer)element);
+
+		} 
 
 
+		flockers.Predator_maximum_catch = parameters.get("MaximumCatch");
+		//System.out.println("Flockers max catch" + flockers.Predator_maximum_catch);
+		
+		flockers.start();
+		long steps = 0;
+		Integer catched_counter = 0;
+		int dynamicFishCaught =0;
+		// maximum number of steps
+		while(steps < maxStepCount )
+		{
+			
+			if (!flockers.schedule.step(flockers))
+				break;
+
+	
+			
+		
+			for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
+			{
+				
+				catched_counter = 0;
+				catched_counter += flockers.pred_catch_table.get(e.nextElement()) ;
+			
+			}
+			
+			steps = flockers.schedule.getSteps();
+			//System.out.println("Max catch: " + Predator_maximum_catch);
+			if(catched_counter >= Predator_maximum_catch ) {
+				System.out.println("Max catched reached");
+				break;
+			}
+		}
+		
+		flockers.schedule.seal();
+		//re initialise prey and run with swarm if maximum catch has not been reached
+		
+		if(catched_counter < Predator_maximum_catch)
+		{	
+			PopulationFileIO PopLoader = new PopulationFileIO();
+			PopLoader.readRule(swarmPop);
+			flockers.Rule_array =  PopLoader.Rule_array;
+			flockers.num_neighborhood_array = PopLoader.num_neighborhood_array;
+			flockers.repulsion_distance_array = PopLoader.repulsion_array;
+			
+			changedPreyType = true;
+			flockers.changedPreyType = true;
+			flockers.schedule.reset();
+			flockers.preyType = PreyType.SWARM;
+			flockers.reinitialisePrey(parameters, flockers);
+			
+			//System.out.println("Changing to swarm...");
+			dynamicFishCaught = catched_counter;
+			for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
+			{
+				Object index = e.nextElement();
+				int flockID = (int)index;
+				//System.out.println("INDEX = " + index.toString()+"       pred energy table size = " + flockers.pred_energy_table.size());
+				double predEnergy = flockers.pred_energy_table.get(index);
+				System.out.println("                         Predator energy = " + predEnergy);
+			}
+			System.out.println("                         Fish caught in Dynamic = " + catched_counter);
+			System.out.println("             Running Swarm Population");
+			
+			steps = 0;
+			// maximum number of steps
+			int max_steps = 1000; // 1 hour //36000 steps are one hour: 10*10*60*1;
+			
+		//	flockers.restart();
+			
+			while(steps < max_steps )
+			{
+				//System.out.println("running...");
+			
+				
+				if(flockers.schedule.getSteps()>1)
+				{
+					changedPreyType = false;
+				}
+		
+				if (!flockers.schedule.step(flockers))
+				{
+					//System.out.println("breaking because here");
+					break;
+				}
+				ArrayList<Integer> fitness = new ArrayList<Integer> ();
+
+				steps = flockers.schedule.getSteps();
+				
+				if(catched_counter>=Predator_maximum_catch) {
+					System.out.println("Steps: " + steps + "  ------ catched_counter: " + catched_counter );
+					break;
+				}
+				
+				
+			}
+			
+			
+			  
+			}
+		
+		Hashtable<Integer,Integer> fitness = new Hashtable<Integer,Integer> ();
+
+		for (Enumeration e = flockers.pred_catch_table.keys(); e.hasMoreElements();)
+		{
+			Object index = e.nextElement();
+			int flockID = (int)index;
+			//System.out.println("INDEX = " + index.toString()+"       pred energy table size = " + flockers.pred_energy_table.size());
+			double predEnergy = flockers.pred_energy_table.get(index);
+			System.out.println("                         Predator energy = " + predEnergy);
+				
+				
+			ArrayList<Double> rule = flockers.Predator_Rule_array.get(flockID);
+			double dynamicModifier = rule.get(4); //get swarm/dynamic modifier	
+			double swarmModifier = rule.get(5);
+			int fishCaught = 0;
+			//System.out.println("flockers catch table size " + flockers.pred_catch_table.size());
+			//System.out.println("flock ID = " + flockID);
+			//System.out.println("catched fish: " + flockers.pred_catch_table.get(0));
+			fishCaught = flockers.pred_catch_table.get(index);
+			System.out.println("                         Fish caught in Swarm = " + (fishCaught-dynamicFishCaught));
+			System.out.println();
+			System.out.println("                         Fish Caught = " + fishCaught);
+			
+			double _value = ((double) ((fishCaught*10) + (predEnergy/10))/150)*100;
+			int fitness_value =(int) _value;
+			
+			System.out.println("                         Fitness = " + fitness_value);
+			//int fintness_value = fishCaught;
+				
+			fitness.put((Integer)index, fitness_value);
+		}
+
+		flockers.finish();
+
+		return fitness;
+		
+		
+		
+		
+		
+	}
+	private void reinitialisePrey(Hashtable<String, Integer> parameters, Flockers flockers2) {
+		
+		//System.out.println("Reinitialising..");
+		super.start();
+
+		Bag population = new Bag(flockers2.flockers.getAllObjects());
+		
+		
+		//System.out.println("population size = " + population.size());
+		
+		Iterator<Flocker> itr = population.iterator(); 
+		
+		while(itr.hasNext()) {
+			
+	
+	
+			//System.out.println("looking at current fish..");
+			Flocker fish =(Flocker) itr.next();
+			
+			if(fish instanceof Prey)
+			{
+				//System.out.println("Removing fish from prey..");
+				itr.remove();
+				
+			}
+			else
+			{
+				schedule.scheduleRepeating(fish);
+			}
+		
+		}
+		//System.out.println("Size now: " + population.size());
+		//System.out.println("Count = " + count);
+		
+		for(int x=0;x<num_preys;x++)
+		{
+			Prey prey = new Prey();
+			Integer prey_box_width = 2*(int)(Math.sqrt(num_preys)); 
+			prey.bodyLength = Prey_BodyLength;
+			
+		
+			//set the preys location
+			flockers2.flockers.setObjectLocation(prey, 
+					new Double2D((random.nextDouble()*2-1)*prey_box_width+width/2, (random.nextDouble()*2-1)*prey_box_width+height/2));
+			prey.lastd = new Double2D(random.nextGaussian(), random.nextGaussian());
+			prey.flockID = x;
+			//initialize score table for all preys
+			ArrayList<Integer> life = new ArrayList<Integer>();
+			life.add(0);
+			prey_score_table.put(x, life);
+			catched_table.put(x, 0);
+			
+			try
+			{
+				prey.num_neighborhood = num_neighborhood_array.get(x).intValue();
+				prey.repulsion_distance = repulsion_distance_array.get(x).intValue();	
+			}
+			catch(Exception e)
+			{}
+			
+			//System.out.println("preycount: " + preycount);
+			//System.out.println("Flockers.java repulsion_distance: " + flocker.repulsion_distance);
+			prey.speed = flockers2.speed_array.get(x);
+			
+			if(variableSizes)
+			{
+			prey.size = 1 + 0.2*Samplers.sampleGamma(4, 1/3.3);
+			
+			}
+			else
+			{	
+				prey.size = 1;
+				
+			}
+			prey.bodyLength = prey.bodyLength * prey.size;
+			
+			prey.flockers = flockers2.flockers;
+			prey.theFlock = flockers2;      
+			schedule.scheduleRepeating(prey);  
+		}
+	}
 }

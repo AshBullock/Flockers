@@ -17,6 +17,7 @@ import org.jgap.IChromosome;
 import org.jgap.InvalidConfigurationException;
 import org.jgap.Population;
 import org.jgap.impl.DefaultConfiguration;
+import org.jgap.impl.DoubleGene;
 import org.jgap.impl.IntegerGene;
 
 /**
@@ -24,7 +25,7 @@ import org.jgap.impl.IntegerGene;
  *
  */
 public class PopulationFileIO {
-	ArrayList<ArrayList<Integer>> Rule_array = new ArrayList<ArrayList<Integer>>(); 
+	ArrayList<ArrayList<Double>> Rule_array = new ArrayList<ArrayList<Double>>(); 
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
 	
@@ -65,23 +66,25 @@ public class PopulationFileIO {
 				String delims = "[,]";
 				String[] tokens = strLine.split(delims);
 				//System.out.println (tokens);
-				ArrayList<Integer> temparray = new ArrayList<Integer>();
+				ArrayList<Double> temparray = new ArrayList<Double>();
 				//The first value is fitness, but for loaded population, set it to -1
 				//Double Chromosome_fitness = Double.parseDouble(tokens[0]);
 				Double Chromosome_fitness = -1.0;
 				for (int a = 1; a < tokens.length; a++) {
 					String tempalle = tokens[a];
-					int allevalue = 0;
+					double allevalue = 0;
 					try
 					{
-						allevalue = Integer.parseInt(tempalle);
+						allevalue = Double.parseDouble(tempalle);
+						//allevalue = Integer.parseInt(tempalle);
 					}
 					catch(Exception e)
 					{
 						//System.out.println("I am here");
 						Double value = Double.parseDouble(tempalle);
-	
+						System.out.println("allevalue = " + value);
 						allevalue = (int)Math.round(value);	
+						System.out.println("rounded = " + allevalue );
 					}
 					//System.out.println ("the allele vaule is " + allevalue);
 					temparray.add(allevalue);
@@ -99,7 +102,7 @@ public class PopulationFileIO {
 		return pop;
 	}
 
-	public IChromosome ParseChromosome(Configuration gaConf, ArrayList<Integer> allele_array, Double Fitness)
+	public IChromosome ParseChromosome(Configuration gaConf, ArrayList<Double> allele_array, Double Fitness)
 	{
 
 		Chromosome sampleChromosome = null;
@@ -111,9 +114,9 @@ public class PopulationFileIO {
 
 			for (int i=0; i < chromeSize; i++)
 			{			
-				Integer allele_value = allele_array.get(i);
+				Double allele_value = allele_array.get(i);
 				//System.out.println("the allele_arry value is " + allele_value + "**** i is " + i);
-				sampleGenes[i] = new IntegerGene(gaConf, allele_value, allele_value);  
+				sampleGenes[i] = new DoubleGene(gaConf, allele_value, allele_value);  
 				sampleGenes[i].setAllele(allele_value);
 			}
 
@@ -134,7 +137,7 @@ public class PopulationFileIO {
 	public void readRule(Population pop) 
 	{
 		
-		ArrayList<Integer> Rule_j = new ArrayList<Integer>();
+		ArrayList<Double> Rule_j = new ArrayList<Double>();
 		
 		for (int i=0;i<pop.size();i++) {
 			IChromosome a_subject = pop.getChromosome(i);
@@ -143,18 +146,17 @@ public class PopulationFileIO {
 			//System.out.println("Chromosome hash code is: " + a_subject.hashCode());
 			
 			// Last allele is the number of neighbourhood
-			Integer num_neighborhood =
-				(Integer) a_subject.getGene(0).getAllele();
+			Double num_neighborhood = (Double) a_subject.getGene(0).getAllele();
 			
-			Integer repulsion_dis =
-				(Integer) a_subject.getGene(1).getAllele();
+			Double repulsion_dis =
+				(Double) a_subject.getGene(1).getAllele();
 			
 			num_neighborhood_array.add(3);
 			repulsion_array.add(5);
 
 			for (int j=0; j<numGenes-2; j++) {
 					
-					Integer rule_output = (Integer) a_subject.getGene(j+2).getAllele();
+					Double rule_output = (Double) a_subject.getGene(j+2).getAllele();
 					Rule_j.add(rule_output);
 			}
 			
