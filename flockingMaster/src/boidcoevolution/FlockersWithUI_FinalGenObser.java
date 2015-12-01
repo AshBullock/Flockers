@@ -54,7 +54,7 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 	ArrayList<Integer> num_neighborhood_array = new ArrayList<Integer>();
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
 	
-	private String type = "Swarm";
+	private String type = "Dynamic";
 	private String predAddress = "\\2_PopSize100_ArenaSize300_NumPredators1_DynamicSwarmComparison_Max20\\PopulationRecords-FITTEST";
 	
 	public static Hashtable<String,Integer> parameters = new Hashtable<String,Integer>();
@@ -88,7 +88,8 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 
 	public FlockersWithUI_FinalGenObser(SimState state) 
 	{
-		super(state);
+		super(state); 
+		
 	}
 
 	public static String getName() { return "Flockers"; }

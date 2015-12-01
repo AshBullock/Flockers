@@ -135,9 +135,9 @@ extends BreederBase {
 	
 		Marker.evaluate(pop);
 		
-		Hashtable<Integer,Integer> fitness_values = Marker.av_statistical_results;
+		Hashtable<Integer,Integer> fitness_values = Marker.statistical_results1;
 	
-			
+	
 		for(int j=0; j<pop.size(); j++) {
 			IChromosome individual = pop.getChromosome(j);
 			
@@ -191,10 +191,10 @@ extends BreederBase {
 		m_lastConf = a_conf;
 	
 		//just one predater so we must enforce genetic mutation 
-		if(parameters.get("PredSize")==1)
-		{
-		applyGeneticOperators(a_conf, pop);
-		}
+		//if(parameters.get("PredSize")==1)
+		//{
+		//applyGeneticOperators(a_conf, pop);
+		//}
 		a_conf.getEventManager().fireGeneticEvent(
 				new GeneticEvent(GeneticEvent.GENOTYPE_EVOLVED_EVENT, this));
 		

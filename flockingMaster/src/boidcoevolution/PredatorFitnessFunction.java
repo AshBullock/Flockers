@@ -47,7 +47,29 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 
 }
 
-
+	private void readRule(Population predPop, int i)
+	{
+		ArrayList<Double> Rule_j = new ArrayList<Double>();
+		IChromosome a_subject = predPop.getChromosome(i);
+		int numGenes = a_subject.size();
+		//System.out.println("Chromosome hash code is: " + a_subject.hashCode());
+		
+		// Last allele is the number of neighbourhood
+		Integer num_neighborhood = 3;
+		Integer repulsion_dis = 5;
+			
+		//System.out.println("Number of genes is..........." + numGenes);
+		//System.out.println("a_subject size ......." + a_subject.size());
+		for (int j=0; j<numGenes; j++) {
+			//System.out.println("j = " + j);
+			Double output = (Double) a_subject.getGene(j).getAllele();
+		
+			Rule_j.add(output);
+		}
+	
+		Predator_Rule_array.add(Rule_j);
+		//System.out.println("Predator rule array = ..... " + Rule_j.size());
+	}
 	
 	
 	//read the rules that each chromosone has  
@@ -85,10 +107,11 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 	
 	public void evaluate(Population pop) {
 	
-	
-		readRule(pop);
-	
+		int numOfChromosones = global_parameters.get("numOfChromosones");
+		if(global_parameters.get("PredSize") > 1)
+			readRule(pop);
 		
+	
 		/**
 		 *Selects the prey population to use here.
 		 */
@@ -121,18 +144,23 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 		//need to change for predator
 		if(global_parameters.get("DynamicSwarmComparison")==1)
 		{
-			
+		
 			
 			Population swarmPop = PopLoader.LoadPopulation("\\SwarmRule", global_parameters.get("PopSize"));
-			System.out.println("Running Simulation 1:");
-			System.out.println("------------------------------------------------------------");
-			statistical_results1 = theFlock.runDynamicSwarmComparison(Flock_Rule_array, Predator_Rule_array, num_neighborhood_array, repulsion_array, global_parameters, swarmPop);
-			System.out.println("Running Simulation 2:");
-			System.out.println("------------------------------------------------------------");
-			statistical_results2 = theFlock.runDynamicSwarmComparison(Flock_Rule_array, Predator_Rule_array, num_neighborhood_array, repulsion_array, global_parameters,swarmPop);
-			System.out.println("Running Simulation 3:");
-			System.out.println("------------------------------------------------------------");
-			statistical_results3 = theFlock.runDynamicSwarmComparison(Flock_Rule_array, Predator_Rule_array, num_neighborhood_array, repulsion_array, global_parameters,swarmPop);
+		
+			for(int i = 0; i<numOfChromosones; i++ )
+			{
+				readRule(pop,i);
+				System.out.println("Running Simulation for predator " + (i+1));
+				System.out.println("------------------------------------------------------------");
+				Integer fitness = theFlock.runDynamicSwarmComparisonSinglePredator(
+						Flock_Rule_array, Predator_Rule_array, num_neighborhood_array, repulsion_array, 
+						global_parameters, swarmPop, i);
+				
+				statistical_results1.put(i, fitness);
+						
+			}
+			
 		}
 		
 		else
@@ -146,20 +174,10 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 				//System.out.println(pop.size());
 			}
 		}
-		for (int i=0;i<pop.size();i++) {
+		for (int i=0;i<numOfChromosones;i++) {
 			IChromosome chromosome2 = pop.getChromosome(i);
 			int fitness = 0;
-			
-			if(global_parameters.get("PredSize") ==1)
-			{
-				fitness = (statistical_results1.get(i)+statistical_results2.get(i)+statistical_results3.get(i))/3;
-			}
-			else
-			{
-				fitness = statistical_results1.get(i);
-			}
-			
-			av_statistical_results.put(i,fitness);
+			fitness = statistical_results1.get(i);
 			chromosome2.setFitnessValue(fitness);
 			//pop.setChromosome(i, chromosome2);
 			//System.out.println(statistical_results.get(i));

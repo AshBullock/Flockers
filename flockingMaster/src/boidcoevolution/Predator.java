@@ -642,7 +642,7 @@ public class Predator extends Flocker{
 		
 		
 		energy = 0;
-		predEnergy+=100;
+		predEnergy+=50;
 		
 		
 		//System.out.println("Num_Catched prey = " + Num_catched_prey);

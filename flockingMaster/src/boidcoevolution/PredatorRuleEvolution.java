@@ -37,7 +37,8 @@ public class PredatorRuleEvolution {
 		int MaximumCatch = 20;
 		String flockRule = "dynamic";
 		int dynamicSwarmComparison = 1; //whether we want to compare dynamic and swarm 
-
+		int numOfChromosones = 4;
+		
 		//Allows user to specify the number of runs 
 		String run_num = args[0];
 		int index = run_num.indexOf('=');
@@ -98,6 +99,7 @@ public class PredatorRuleEvolution {
 		parameters.put("MaximumCatch", MaximumCatch);
 		parameters.put("FlockType", flockType);
 		parameters.put("DynamicSwarmComparison", dynamicSwarmComparison);
+		parameters.put("numOfChromosones", numOfChromosones);
 
 		//create a new file with name dependant on arena and pop size  
 		try {			
@@ -159,7 +161,7 @@ public class PredatorRuleEvolution {
 			//create and set the sample chromosone 
 			Chromosome sampleChromosome = new Chromosome(gaConf, sampleGenes );
 			gaConf.setSampleChromosome( sampleChromosome );
-			gaConf.setPopulationSize(PredSize);
+			gaConf.setPopulationSize(numOfChromosones);
 			
 			//create a random genotype (a collection of randomised chromosones that follow the
 			//format given by the sample chromosone but with randomised values
@@ -230,7 +232,7 @@ public class PredatorRuleEvolution {
 				//System.out.println("Size of chromosone pop: " + population.size());
 
 				//every interval of 10 	
-				if(i%10==0 ) {
+				if(i%5==0 ) {
 
 
 					try {
@@ -242,12 +244,9 @@ public class PredatorRuleEvolution {
 
 						//sometimes we gain more chromosones then the population due to optimisation of PredatorGABreeder, 
 						//in this case sort by the fitness
-						if(PredSize < population.size())
-						{
-							///population.sortByFitness();
-						}
+					
 						
-						for(int aa = 0; aa<PredSize; aa++) {
+						for(int aa = 0; aa<numOfChromosones; aa++) {
 							IChromosome evolving_chromosome = population.getChromosome(aa);
 							
 							Double chromosome_fitness = evolving_chromosome.getFitnessValue();
@@ -278,49 +277,7 @@ public class PredatorRuleEvolution {
 					
 					
 			}
-				if(PredSize ==1)
-				{
-				try {
-					File dir1 = new File (".");
-
-					// Write the whole population to a .csv file																																																					
-
-					FileWriter writer = new FileWriter(dir1.getCanonicalPath() + "//" + dest_dir2  +"//PopulationRecords-FITTEST.csv", false);
-					//sometimes we gain more chromosones then the population due to optimisation of PredatorGABreeder, 
-					//in this case sort by the fitness
-					for(int aa = 0; aa<PredSize; aa++) {
-						IChromosome evolving_chromosome = bestSolutionSoFar;				
-						Double chromosome_fitness = evolving_chromosome.getFitnessValue();
-						//System.out.println("Chromosone fitness = " + chromosome_fitness);
-						writer.append(chromosome_fitness.toString());
-						writer.append(',');
-						writer.append("3");
-						writer.append(',');
-						writer.append("5");
-						writer.append(',');
-						for(int bb=0; bb<evolving_chromosome.size(); bb++) {
-							Double allele = (Double) evolving_chromosome.getGene(bb).getAllele();	
-							//System.out.println("allele is " + allele);
-							writer.append(allele.toString());
-							writer.append(',');
-						}
-					
-						writer.append('\n');
-
-					}
-					writer.close();
-
-
-				}
 				
-
-				catch (IOException e) {
-					System.out.println(e);
-				}
-					
-					
-				}
-
 			}
 			population = breeder.evolve(population, gaConf);
 		}
