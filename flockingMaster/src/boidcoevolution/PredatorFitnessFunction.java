@@ -50,6 +50,7 @@ public class PredatorFitnessFunction extends BulkFitnessFunction {
 	private void readRule(Population predPop, int i)
 	{
 		ArrayList<Double> Rule_j = new ArrayList<Double>();
+		//System.out.println("Size of predPop = " + predPop.size());
 		IChromosome a_subject = predPop.getChromosome(i);
 		int numGenes = a_subject.size();
 		//System.out.println("Chromosome hash code is: " + a_subject.hashCode());

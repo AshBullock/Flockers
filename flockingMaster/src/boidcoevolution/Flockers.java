@@ -40,7 +40,7 @@ public class Flockers extends SimState
 	public PreyType preyType;
 	public boolean changedPreyType= false;
 	public boolean dynamicSwarmComparison = true;
-
+	public int forceChrom = -1;
 	public boolean variableSpeeds = false;
 	public boolean variableSizes = false;
 	
@@ -52,7 +52,7 @@ public class Flockers extends SimState
 	public ArrayList<Integer> repulsion_distance_array;
 	public ArrayList<Double> speed_array = new ArrayList<Double> ();
 	public ArrayList<Double> size_array = new ArrayList<Double> ();
-	public Integer Predator_maximum_catch=20;
+	public Integer Predator_maximum_catch=30; //real one
 
 	public ArrayList<ArrayList<Double>> Rule_array;
 	public ArrayList<ArrayList<Double>> Predator_Rule_array;
@@ -96,7 +96,7 @@ public class Flockers extends SimState
 		super(seed);
 		//System.out.println("CREATING NEW FLOCKERS");
 
-	
+		Predator_maximum_catch = parameters.get("MaximumCatch");
 		num_preys = parameters.get("PopSize");
 		arenalength = parameters.get("ArenaSize");
 		try{
@@ -228,8 +228,16 @@ public class Flockers extends SimState
 		
 		for(int ii=0; ii<num_predator; ii++)
 		{
+			
 			Predator pred = new Predator();
-			pred.flockID=ii;
+			if(forceChrom>=0)
+			{
+				pred.flockID = forceChrom;
+			}
+			else
+			{
+				pred.flockID=ii;
+			}
 			pred_catch_table.put(ii,0);
 			// if (random.nextBoolean(deadFlockerProbability)) flocker.dead = true;
 
@@ -778,13 +786,13 @@ public class Flockers extends SimState
 				break;
 	
 			
-			catched_counter = flockers.pred_catch_table.get(0) ;
-		
+			catched_counter = flockers.pred_catch_table.get(0);
+			//System.out.println("Catched counter: " + catched_counter);
 			steps = flockers.schedule.getSteps();
 			//System.out.println("Max catch: " + Predator_maximum_catch);
 		
 			if(catched_counter >= Predator_maximum_catch ) {
-				System.out.println("Max catched reached");
+				System.out.println("Max catch reached");
 				break;
 			}
 		}
@@ -868,13 +876,14 @@ public class Flockers extends SimState
 		System.out.println();
 		System.out.println("                         Fish Caught = " + fishCaught);
 			
-			double _value = (fishCaught*10) + (predEnergy/10);
+			double _value = (fishCaught*10) + (predEnergy/5);
 			if(_value < 0)
 				_value=0;
 			
 			int maxCatch = parameters.get("MaximumCatch");
 			
-			int maxFitness = (int) (((maxCatch*10) + (maxCatch*50))*0.75);
+			int maxFitness = (int) (((maxCatch*10) + ((((maxCatch*50)/5))*0.8)));
+			
 			
 			
 			double adjustedFitness = (_value/maxFitness)*100;
@@ -904,4 +913,11 @@ public class Flockers extends SimState
 		
 		
 	}
+	
+	public void setForceChromosone(int i)
+	{
+		this.forceChrom = i;
+	}
+	
+	
 }

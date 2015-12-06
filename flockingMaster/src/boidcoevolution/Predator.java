@@ -18,13 +18,13 @@ public class Predator extends Flocker{
 	
 	public final int CHASE_SPEED_MOD = 3;
 	public double bodyLength;
-	public Integer maximumCatch=20;
+	public Integer maximumCatch=30;
 	public int Num_catched_prey=0;
 	public boolean accelation_flag = false;
 	public int energy=0;	
 	public Double speed = 0.0;
 	public int Lock_ID = -1;
-	public double predEnergy = 0;
+	public double predEnergy = 500;
 	public int wait= 0;
 	public int chasing= 0;
 	
@@ -62,7 +62,7 @@ public class Predator extends Flocker{
 		//System.out.println("Predator step..");
 		final Flockers flock = (Flockers)state;
 		loc = flock.flockers.getObjectLocation(this);
-		
+		//System.out.println(this.flockID);
 		
 		
 		//need to fix
@@ -97,6 +97,7 @@ public class Predator extends Flocker{
 				// randomly reinitialise the predator after 6000 steps without catching anything
 				if(energy<-10*3000000) 
 				{
+					//System.out.println("Resetting....");
 					energy = 0;
 					loc = new Double2D(flock.random.nextDouble()*flock.width, flock.random.nextDouble()*flock.height);
 					flock.flockers.setObjectLocation(this, loc);

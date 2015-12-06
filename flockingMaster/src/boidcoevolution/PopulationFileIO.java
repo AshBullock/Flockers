@@ -101,6 +101,9 @@ public class PopulationFileIO {
 
 		return pop;
 	}
+	
+	
+	
 
 	public IChromosome ParseChromosome(Configuration gaConf, ArrayList<Double> allele_array, Double Fitness)
 	{

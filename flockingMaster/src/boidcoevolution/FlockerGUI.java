@@ -45,7 +45,7 @@ import org.jgap.Population;
 import boidcoevolution.Flockers.PreyType;
 
 
-public class FlockersWithUI_FinalGenObser extends GUIState
+public class FlockerGUI extends GUIState
 {
 	public Display2D display;
 	public JFrame displayFrame;
@@ -55,8 +55,8 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 	ArrayList<Integer> repulsion_array = new ArrayList<Integer>();
 	
 	private String type = "Dynamic";
-	private String predAddress = "\\2_PopSize100_ArenaSize300_NumPredators1_DynamicSwarmComparison_Max20\\PopulationRecords-FITTEST";
-	
+	private String predAddress = "\\15_PopSize100_ArenaSize500_NumPredators1_DynamicSwarmComparison\\PopulationRecords126";
+	private static int forceChromosome = 3;
 	public static Hashtable<String,Integer> parameters = new Hashtable<String,Integer>();
 	
 
@@ -67,10 +67,10 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 		parameters.put("PopSize", 100);
 		parameters.put("ArenaSize", 400);
 		parameters.put("PredSize", 1);
-		parameters.put("MaximumCatch", 20);
-	
+		//parameters.put("MaximumCatch", 30);
+		parameters.put("ForceChromosome", forceChromosome);
 		parameters.put("DynamicSwarmComparison", 1);
-		FlockersWithUI_FinalGenObser flocking = new FlockersWithUI_FinalGenObser();  // randomizes by currentTimeMillis        
+		FlockerGUI flocking = new FlockerGUI();  // randomizes by currentTimeMillis        
 		Console c = new Console(flocking);
 		c.setVisible(true);
 		
@@ -81,12 +81,12 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 
 	ContinuousPortrayal2D flockersPortrayal = new ContinuousPortrayal2D();
 
-	public FlockersWithUI_FinalGenObser()
+	public FlockerGUI()
 	{
 		super(new Flockers(System.currentTimeMillis(), parameters));
 	}
 
-	public FlockersWithUI_FinalGenObser(SimState state) 
+	public FlockerGUI(SimState state) 
 	{
 		super(state); 
 		
@@ -112,12 +112,12 @@ public class FlockersWithUI_FinalGenObser extends GUIState
 		PopulationFileIO PredPopLoader = new PopulationFileIO();
 		Population predPop = PredPopLoader.LoadPopulation(predAddress, parameters.get("PredSize"));
 		PredPopLoader.readRule(predPop);
-
+		flock.setForceChromosone(forceChromosome);
 		flock.Rule_array = PopLoder.Rule_array;
 		flock.Predator_Rule_array = PredPopLoader.Rule_array;
 		flock.num_neighborhood_array = PopLoder.num_neighborhood_array;
 		flock.repulsion_distance_array = PopLoder.repulsion_array;
-		flock.Predator_maximum_catch = 10;
+		flock.Predator_maximum_catch = 20;
 		if(parameters.get("DynamicSwarmComparison") ==1)
 		{
 			if(type.equals("Swarm"))

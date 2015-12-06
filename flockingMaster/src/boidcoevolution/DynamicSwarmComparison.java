@@ -179,7 +179,7 @@ public class DynamicSwarmComparison {
 
 		//create a population from the genotype and create a new breeder
 		Population population = genotype.getPopulation();
-		PredatorGABreeder breeder = new PredatorGABreeder(parameters);
+		PredatorBreeder breeder = new PredatorBreeder(parameters);
 	
 		
 		try {

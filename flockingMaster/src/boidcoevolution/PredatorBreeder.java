@@ -15,7 +15,7 @@ import org.jgap.*;
 import org.jgap.audit.*;
 import org.jgap.event.*;
 
-public class PredatorGABreeder
+public class PredatorBreeder
 extends BreederBase {
 	/** String containing the CVS revision. Read out via reflection!*/
 	private final static String CVS_REVISION = "$Revision: 1.17 $";
@@ -28,7 +28,7 @@ extends BreederBase {
 	
 	private Hashtable<String,Integer> parameters;
 
-	public PredatorGABreeder(Hashtable<String,Integer> parameters) {
+	public PredatorBreeder(Hashtable<String,Integer> parameters) {
 		super();
 		Marker = new PredatorFitnessFunction(parameters);
 		this.parameters=parameters;
@@ -49,6 +49,8 @@ extends BreederBase {
 	 * @since 3.2
 	 */
 	public Population evolve(Population a_pop, Configuration a_conf) {
+		
+		
 		Population pop = a_pop;
 		//System.out.println("Pop size = " + a_pop.size());
 		int originalPopSize = a_conf.getPopulationSize();
@@ -69,9 +71,14 @@ extends BreederBase {
 			// not in the very first generation.
 			// -------------------------------------------------------------------
 			if (a_conf.isPreserveFittestIndividual()) {
+				//System.out.println("Wants to preserve fittest");
 				/**@todo utilize jobs. In pop do also utilize jobs, especially for fitness
 				 * computation*/
 				fittest = pop.determineFittestChromosome(0, pop.size() - 1);
+			}
+			else
+			{
+				//System.out.println("Doesn't want to preserve fittest");
 			}
 		}
 		if (a_conf.getGenerationNr() > 0) {
@@ -89,12 +96,21 @@ extends BreederBase {
 		// Ensure fitness value of all chromosomes is udpated.
 		// ---------------------------------------------------
 
+		Population newPop = (Population) pop.clone();
+		
+		
 		// Apply certain NaturalSelectors before GeneticOperators will be executed.
 		// ------------------------------------------------------------------------
 		pop = applyNaturalSelectors(a_conf, pop, true);
-		// Execute all of the Genetic Operators.
+		
+		
+		//System.out.println("NewPop: " + newPop.size());
+		//System.out.println("OldPop: " + pop.size());
+		// Execute allof the Genetic Operators.
 		// -------------------------------------
+		//System.out.println(pop.size());
 		applyGeneticOperators(a_conf, pop);
+		//System.out.println("OldPop: " + pop.size());
 		// Reset fitness value of genetically operated chromosomes.
 		// Normally, this should not be necessary as the Chromosome class
 		// initializes each newly created chromosome with
@@ -112,7 +128,7 @@ extends BreederBase {
 			// -------------------------------------
 			chrom.increaseOperatedOn();
 		}
-		// Increase age of all chromosomes which are not modified by genetic
+		// Increase age of all chromosomes which are 0not modified by genetic
 		// operations.
 		// -----------------------------------------------------------------
 		int size = Math.min(originalPopSize, currentPopSize);
@@ -125,14 +141,53 @@ extends BreederBase {
 		}
 		// If a bulk fitness function has been provided, call it.
 		// ------------------------------------------------------
-		//BulkFitnessFunction bulkFunction = a_conf.getBulkFitnessFunction();
+		BulkFitnessFunction bulkFunction = a_conf.getBulkFitnessFunction();
 
 
 
 		// Apply certain NaturalSelectors after GeneticOperators have been applied.
 		// ------------------------------------------------------------------------
 		pop = applyNaturalSelectors(a_conf, pop, false);
-	
+		try {
+			pop.keepPopSizeConstant();
+		} catch (InvalidConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//System.out.println("OldPop: " + pop.size());
+		newPop.sortByFitness();
+		//System.out.println("New Pop size: " + newPop.size());
+		for(int i = 0 ; i<pop.size(); i++)
+		{
+			
+			
+			//System.out.println(i+ "th chromosomeFitness = " + newPop.getChromosome(newPop.size()-1).getFitnessValueDirectly());
+			newPop.setChromosome(newPop.size()-i-1, pop.getChromosome(i));
+		}
+		
+		
+		pop = newPop;
+		//System.out.println("Pop size: " + pop.size());
+//		int fill = a_conf.getPopulationSize()- pop.size();
+//		//System.out.println("FILL = " +  a_conf.getPopulationSize() + " - " + pop.size() + "  = "  + fill);
+//		if(fill>0)
+//		{
+//		
+//			for(int i = 0; i<fill ; i++){
+//				
+//				try {
+//					Chromosome a_toAdd = (Chromosome) Chromosome.randomInitialChromosome(a_conf);
+//					
+//					
+//					pop.addChromosome(a_toAdd);
+//					} 
+//				catch (InvalidConfigurationException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+		//System.out.println("Configurations size   "+a_conf.getPopulationSize());
+		//System.out.println("Size of pop should now be lower ... " + pop.size());
 		Marker.evaluate(pop);
 		
 		Hashtable<Integer,Integer> fitness_values = Marker.statistical_results1;
@@ -178,7 +233,7 @@ extends BreederBase {
 				}
 			}
 		}
-		IChromosome newFittest = reAddFittest(pop, fittest);
+		//IChromosome newFittest = reAddFittest(pop, fittest);
 
 
 

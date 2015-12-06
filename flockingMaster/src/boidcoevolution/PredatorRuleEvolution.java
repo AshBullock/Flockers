@@ -19,6 +19,7 @@ import org.jgap.Population;
 import org.jgap.impl.BestChromosomesSelector;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
+import org.jgap.impl.WeightedRouletteSelector;
 
 import sim.display.Display2D;
 
@@ -34,10 +35,11 @@ public class PredatorRuleEvolution {
 		// used for evolved population
 		//create populations of chromosones 
 		
-		int MaximumCatch = 20;
+		int MaximumCatch = 50;
 		String flockRule = "dynamic";
 		int dynamicSwarmComparison = 1; //whether we want to compare dynamic and swarm 
-		int numOfChromosones = 4;
+		int numOfChromosones = 5;
+		double selectionRate = 0.25;
 		
 		//Allows user to specify the number of runs 
 		String run_num = args[0];
@@ -136,7 +138,29 @@ public class PredatorRuleEvolution {
 		int numEvolutions = 30000;
 		Configuration.reset();
 		//add a new default configuration 
+		
 		Configuration gaConf = new DefaultConfiguration();
+		//System.out.println(gaConf.getNaturalSelectorsSize(true));
+		//System.out.println(gaConf.getNaturalSelectorsSize(false));
+		
+		gaConf.removeNaturalSelectors(false);
+		
+		MyNaturalSelector selector;
+		try {
+			selector = new MyNaturalSelector(gaConf);
+			//System.out.println("num to select = " + ((int)(numOfChromosones*selectionRate)));
+			selector.setNumberToSelect((int)(numOfChromosones*selectionRate));
+			gaConf.addNaturalSelector(selector,true);
+			
+		} catch (InvalidConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+			
+		
+	//System.out.println("gaConf nat size: "+ gaConf.getNaturalSelectorsSize(false));
 		Genotype genotype = null;
 		//4 genes in a chromosone  
 		int chromeSize = 6;
@@ -188,7 +212,7 @@ public class PredatorRuleEvolution {
 
 		//create a population from the genotype and create a new breeder
 		Population population = genotype.getPopulation();
-		PredatorGABreeder breeder = new PredatorGABreeder(parameters);
+		PredatorBreeder breeder = new PredatorBreeder(parameters);
 	
 		
 		try { 
@@ -232,7 +256,7 @@ public class PredatorRuleEvolution {
 				//System.out.println("Size of chromosone pop: " + population.size());
 
 				//every interval of 10 	
-				if(i%5==0 ) {
+				//if(i%5==0 ) {
 
 
 					try {
@@ -276,10 +300,12 @@ public class PredatorRuleEvolution {
 					}
 					
 					
-			}
+			//}
 				
 			}
 			population = breeder.evolve(population, gaConf);
+		
+			
 		}
 
 
